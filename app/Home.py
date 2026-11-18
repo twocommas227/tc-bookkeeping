@@ -20,12 +20,6 @@ st.title("Two Commas bookkeeping")
 st.subheader(f"Close checklist {month}")
 
 
-def _status(item: dict) -> str:
-    if item["ok"]:
-        return "[ok]"
-    return "[!!]" if item["blocking"] else "[!]"
-
-
 def _page_name(page: str) -> str:
     stem = pathlib.PurePosixPath(page).stem  # '4_Reports'
     return stem.split("_", 1)[-1].replace("_", " ") if page else ""
@@ -37,15 +31,27 @@ table = pd.DataFrame(
         {
             "Step": it["step"],
             "Check": it["label"],
-            "Status": _status(it),
+            "Status": ui_common.status_label(it),
             "Detail": it["detail"],
             "Fix on": "" if it["ok"] else _page_name(it["page"]),
         }
         for it in items
     ]
 )
-st.dataframe(table, hide_index=True, use_container_width=True, key="close_checklist")
-st.caption("[ok] done   [!!] blocks closing the month   [!] warning only")
+blocking = [it for it in items if not it["ok"] and it["blocking"]]
+if blocking:
+    st.write(f"{len(blocking)} step{'s' if len(blocking) != 1 else ''} still block closing {month}: "
+             + ", ".join(it["label"].lower() for it in blocking) + ".")
+else:
+    st.write(f"Nothing blocks closing {month}.")
+st.dataframe(
+    table, hide_index=True, use_container_width=True, key="close_checklist",
+    column_config={
+        "Status": st.column_config.TextColumn("Status", width=120),
+        "Fix on": st.column_config.TextColumn("Fix on", width=100),
+    },
+)
+st.caption(ui_common.STATUS_LEGEND)
 
 unpaid = invoices.unpaid(conn)
 if unpaid:

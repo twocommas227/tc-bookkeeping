@@ -1,0 +1,65 @@
+/* Two Commas bookkeeping: tokens and component styling. Loaded by ui_common.apply_style().
+   Contrast (WCAG): ink on paper 16:1, muted on paper 6:1, white on accent-deep 8:1, accent-deep on accent-soft 6.5:1,
+   apricot-ink on apricot-soft 6.4:1. Focus rings are instant. Reduced motion: no transitions. */
+@import url("https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600&family=Wix+Madefor+Text:wght@400;500;600&display=swap");
+
+:root {
+  --color-paper: #F7F3EE; --color-well: #EDE9E2; --color-card: #FFFDFB;
+  --color-ink: #151820; --color-muted: #565B64; --color-rule: #D9D5CF;
+  --color-accent: #A0B0F4; --color-accent-deep: #3E4999; --color-accent-soft: #E1E7FE;
+  --color-apricot: #F4BA87; --color-apricot-ink: #7B461E; --color-apricot-soft: #FDE7CF;
+  --color-focus: #3E4999;
+  --font-display: "Wix Madefor Display", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Wix Madefor Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius-card: 14px; --radius-pill: 999px;
+}
+
+html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button,
+.stApp [data-baseweb="select"], .stApp [data-testid="stMarkdownContainer"], .stApp [data-testid="stCaptionContainer"] {
+  font-family: var(--font-body);
+}
+.stApp { font-variant-numeric: tabular-nums; }
+
+/* headings: modest display weight, tight tracking, sentence case */
+h1, h2, h3, h4, .stApp h1, .stApp h2, .stApp h3 { font-family: var(--font-display) !important; font-weight: 500 !important; letter-spacing: -0.022em; color: var(--color-ink); }
+.stApp h1 { font-size: 2.4rem; line-height: 1.08; padding-bottom: .75rem; }
+.stApp h2 { font-size: 1.6rem; line-height: 1.15; padding-top: 1.6rem; }
+.stApp h3 { font-size: 1.2rem; line-height: 1.25; }
+[data-testid="stCaptionContainer"], .stApp small { color: var(--color-muted); }
+
+.block-container { max-width: 1240px; padding-top: 3rem; padding-bottom: 5rem; }
+
+/* sidebar: a bone well with a quiet nav */
+[data-testid="stSidebar"] { background: var(--color-well); }
+[data-testid="stSidebarNav"] a { border-radius: 10px; padding: .35rem .6rem; }
+[data-testid="stSidebarNav"] a[aria-current="page"] { background: var(--color-card); font-weight: 600; box-shadow: inset 0 0 0 1px var(--color-rule); }
+[data-testid="stSidebar"] label p { color: var(--color-muted); font-weight: 500; }
+
+/* alerts: periwinkle = done / information, apricot = open / waiting; errors keep a clear red edge */
+[data-testid="stAlert"] [data-testid="stAlertContainer"] { border-radius: var(--radius-card); border: 1px solid var(--color-rule); box-shadow: none; }
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) [data-testid="stAlertContainer"] { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent-deep); }
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) [data-testid="stAlertContainer"] { background: var(--color-apricot-soft); border-color: var(--color-apricot); color: var(--color-apricot-ink); }
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) p,
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) p { color: var(--color-accent-deep); }
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) p { color: var(--color-apricot-ink); }
+/* the sidebar's LOCKED badge is not an error: ink pill on the well */
+[data-testid="stSidebar"] [data-testid="stAlert"]:has([data-testid="stAlertContentError"]) [data-testid="stAlertContainer"] { background: var(--color-ink); border-color: var(--color-ink); }
+[data-testid="stSidebar"] [data-testid="stAlert"]:has([data-testid="stAlertContentError"]) p { color: var(--color-card); font-weight: 600; }
+[data-testid="stSidebar"] [data-testid="stAlert"] p { letter-spacing: .02em; }
+
+/* buttons: ghost pill, one periwinkle primary pill */
+.stButton > button, .stDownloadButton > button { border-radius: var(--radius-pill); min-height: 2.6rem; padding: 0 1.2rem; font-weight: 500; background: var(--color-card); border: 1px solid var(--color-rule); color: var(--color-ink); }
+.stButton > button:hover:not(:disabled), .stDownloadButton > button:hover:not(:disabled) { border-color: var(--color-accent-deep); color: var(--color-accent-deep); }
+.stButton > button[kind="primary"], .stDownloadButton > button[kind="primary"] { background: var(--color-accent-deep); color: #fff; border-color: var(--color-accent-deep); box-shadow: inset 0 1px 0 rgba(255,255,255,.28); }
+.stButton > button[kind="primary"]:hover:not(:disabled) { background: #2F3985; color: #fff; }
+.stButton > button:disabled, .stDownloadButton > button:disabled { background: transparent; color: var(--color-muted); border-style: dashed; opacity: .75; }
+:is(button, a, input, textarea, [role="combobox"], [role="tab"]):focus-visible { outline: 2px solid var(--color-focus) !important; outline-offset: 2px; }
+
+/* inputs and tables sit on white cards with a hairline rule */
+[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="textarea"] { border-radius: 12px; background: var(--color-card); }
+[data-testid="stDataFrame"], [data-testid="stDataFrameResizable"] { border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--color-rule); background: var(--color-card); }
+[data-testid="stExpander"] { border-radius: var(--radius-card); border: 1px solid var(--color-rule); background: var(--color-card); }
+hr { border-color: var(--color-rule); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

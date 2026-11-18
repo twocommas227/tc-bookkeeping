@@ -236,12 +236,6 @@ st.header(f"E. Close month {month}")
 items = close.checklist(conn, month)
 
 
-def _status(it: dict) -> str:
-    if it["ok"]:
-        return "[ok]"
-    return "[!!]" if it["blocking"] else "[!]"
-
-
 def _page_name(page: str) -> str:
     stem = pathlib.PurePosixPath(page).stem
     return stem.split("_", 1)[-1].replace("_", " ") if page else ""
@@ -250,14 +244,18 @@ def _page_name(page: str) -> str:
 st.dataframe(
     pd.DataFrame([
         {
-            "Step": it["step"], "Check": it["label"], "Status": _status(it), "Detail": it["detail"],
+            "Step": it["step"], "Check": it["label"], "Status": ui_common.status_label(it), "Detail": it["detail"],
             "Fix on": "" if it["ok"] else _page_name(it["page"]),
         }
         for it in items
     ]),
     hide_index=True, width="stretch", key="rep_checklist",
+    column_config={
+        "Status": st.column_config.TextColumn("Status", width=120),
+        "Fix on": st.column_config.TextColumn("Fix on", width=100),
+    },
 )
-st.caption("[ok] done   [!!] blocks closing the month   [!] warning only")
+st.caption(ui_common.STATUS_LEGEND)
 if month == "2026-10":
     st.info(
         "October can only be locked for good after the 28 Nov card statement is imported: the card *2110 cycle closes "

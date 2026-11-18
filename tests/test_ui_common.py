@@ -83,8 +83,8 @@ def test_home_checklist_golden(golden_path):
     assert list(df.columns) == ["Step", "Check", "Status", "Detail", "Fix on"]
     assert len(df) == 10
     by_check = {r["Check"]: r for _, r in df.iterrows()}
-    assert by_check["Auto-categorise"]["Status"] == "[ok]"
-    assert by_check["Enter statement ending balances"]["Status"] == "[!!]"
+    assert by_check["Auto-categorise"]["Status"] == "\u2713 Done"
+    assert by_check["Enter statement ending balances"]["Status"] == "\u25cf Blocks"
     assert by_check["Enter statement ending balances"]["Fix on"] == "Reports"
     text = " ".join(m.value for m in at.markdown)
     assert "Unpaid WA invoices: 1" in text and "Wise INV-010 5,645.14" in text

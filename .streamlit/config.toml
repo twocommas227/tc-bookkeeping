@@ -1,0 +1,18 @@
+# Look of the app. Colours follow the "Dusk" ideas (calm, bone paper, one periwinkle signal for done and
+# focused, one apricot signal for open and waiting), in a light variant that suits long reading of tables.
+[theme]
+base = "light"
+primaryColor = "#3E4999"
+backgroundColor = "#F7F3EE"
+secondaryBackgroundColor = "#EDE9E2"
+textColor = "#151820"
+borderColor = "#D9D5CF"
+dataframeBorderColor = "#D9D5CF"
+baseRadius = "large"
+showSidebarBorder = false
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false

@@ -86,12 +86,35 @@ def _default_month(conn: sqlite3.Connection, options: list[str]) -> str:
     return options[-1]
 
 
+_STYLE_FILE = Path(__file__).with_name("style.css")
+
+
+def apply_style() -> None:
+    """Inject app/style.css (tokens, headings, buttons, alerts). Called by sidebar(), so every page gets it."""
+    try:
+        css = _STYLE_FILE.read_text(encoding="utf-8")
+    except OSError:  # a missing stylesheet must never stop the app
+        return
+    st.html(f"<style>{css}</style>")
+
+
+def status_label(item: dict) -> str:
+    """Checklist status as a word with an icon (Home and Reports): done / blocks (closing) / warning (only)."""
+    if item["ok"]:
+        return "\u2713 Done"
+    return "\u25cf Blocks" if item["blocking"] else "\u25b2 Warning"
+
+
+STATUS_LEGEND = "\u2713 Done    \u25cf Blocks closing the month    \u25b2 Warning only"
+
+
 def sidebar(conn: sqlite3.Connection) -> str:
     """Draw the working-month selectbox, the lock badge and any queued flash message; return 'YYYY-MM'.
 
     The selectbox is keyed 'month' (shared by all pages). Options = months that have transactions plus the
     current month. Default = earliest option not in month_locks. A one-shot 'flash' message is shown, then cleared.
     """
+    apply_style()
     options = _month_options(conn)
     if st.session_state.get("month") not in options:
         st.session_state["month"] = _default_month(conn, options)
