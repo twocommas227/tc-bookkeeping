@@ -334,3 +334,29 @@ def test_upgrade_relabels_reimbursables_in_open_months_only(golden_db):
     rows = dict(golden_db.execute(
         "SELECT type, COUNT(*) FROM transactions WHERE category_id = ? GROUP BY type", (cat,)).fetchall())
     assert rows == {"Pass-through": locked_rows, "Reimbursable": 12 - locked_rows}
+
+
+def test_accounts_and_categories_freeze_once_a_month_is_locked(golden_db):
+    """LOW L4: the settings behind a closed month's numbers cannot be changed or deleted."""
+    import sqlite3
+
+    golden_db.execute("UPDATE accounts SET opening_balance_cents = opening_balance_cents WHERE id = 1")  # no lock yet
+    golden_db.execute("DROP TRIGGER trg_month_lock_requires_tie_out")  # the test only needs the lock row
+    golden_db.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES ('2026-01', 'test')")
+    golden_db.commit()
+    for sql in ("UPDATE accounts SET opening_balance_cents = 1 WHERE id = 1",
+                "UPDATE accounts SET source_label = 'x' WHERE id = 1",
+                "UPDATE accounts SET tie_required = 0 WHERE id = 1",
+                "DELETE FROM accounts WHERE id = 5",
+                "UPDATE categories SET section = 'sga' WHERE name = 'Service Revenue'",
+                "UPDATE categories SET name = 'x' WHERE name = 'Bank Charges'",
+                "DELETE FROM categories WHERE name = 'Interest Income'",
+                "INSERT INTO accounts (code, source_label, name, kind, institution, opening_date, opening_balance_cents) "
+                "VALUES ('NEW', 'new', 'new', 'bank', 'x', '2026-01-15', 5)"):
+        with pytest.raises(sqlite3.IntegrityError, match="locked"):
+            golden_db.execute(sql)
+    # still editable: notes, seeded cutoff, default type, and a new account that opens after the locked month
+    golden_db.execute("UPDATE accounts SET notes = 'ok', seeded_through = '2026-10-31' WHERE id = 1")
+    golden_db.execute("UPDATE categories SET default_type = default_type WHERE name = 'Bank Charges'")
+    golden_db.execute("INSERT INTO accounts (code, source_label, name, kind, institution, opening_date, opening_balance_cents) "
+                      "VALUES ('NEW', 'new', 'new', 'bank', 'x', '2026-02-01', 0)")

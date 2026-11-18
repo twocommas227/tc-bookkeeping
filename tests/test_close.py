@@ -79,7 +79,7 @@ def test_close_oct_blocked_names_missing_balances(db, tmp_path):
     assert {"balances_entered", "tie_out_zero"} <= {i["key"] for i in e.value.items}
     assert not close.is_locked(db, "2026-10")
     assert db.execute("SELECT COUNT(*) FROM month_locks WHERE yyyy_mm = '2026-10'").fetchone()[0] == 0
-    assert list(tmp_path.glob("tc_*_close.db"))  # backup is taken first, even when blocked
+    assert not list(tmp_path.glob("tc_*_close.db"))  # L1: a refused close leaves no backup behind
 
 
 def test_checklist_oct_step_order_and_failing_tie_out(db):
@@ -279,3 +279,15 @@ def test_cannot_close_a_month_while_an_earlier_one_is_open(db, tmp_path):
     close.close_month(db, "2026-02", "feb", acknowledge_tail=True)
     close.close_month(db, "2026-03", "mar", acknowledge_tail=True)
     assert close.open_months_before(db, "2026-04") == []
+
+
+def test_close_backup_is_taken_only_after_the_checks_pass(db, tmp_path):
+    with pytest.raises(CloseBlocked):
+        close.close_month(db, "2026-03", "too early", acknowledge_tail=True)  # earlier months are open
+    assert not list(tmp_path.glob("tc_*_close.db"))
+    close.close_month(db, "2026-01", "jan", acknowledge_tail=True)
+    snaps = list(tmp_path.glob("tc_*_close.db"))
+    assert len(snaps) == 1
+    import sqlite3
+    with sqlite3.connect(str(snaps[0])) as snap:  # the backup is the state just before the lock
+        assert snap.execute("SELECT COUNT(*) FROM month_locks").fetchone()[0] == 0

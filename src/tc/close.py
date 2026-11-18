@@ -355,7 +355,7 @@ def _export_invoices_csv(conn: sqlite3.Connection, month: str, backup_path: Path
 
 # ---------------------------------------------------------------- close / reopen
 def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledge_tail: bool = False) -> Path:
-    """Back up, run the blocking checks, lock the month, export its transactions to CSV next to the backup.
+    """Run the blocking checks, back up, lock the month, export its transactions and invoices to CSV next to the backup.
 
     Returns the backup path. Raises CloseBlocked (``.items`` = failed check items) when a blocking check fails,
     or when the tail warning is unacknowledged (``acknowledge_tail=False`` and tail_covered not ok).
@@ -364,7 +364,6 @@ def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledg
     reason = _require_reason(reason, "closing a month")
     if is_locked(conn, month):
         raise LockedMonthError(f"Month {month} is already closed and locked", month=month)
-    path = backup(conn, "close")
     earlier = open_months_before(conn, month)
 
     items = checklist(conn, month)
@@ -375,6 +374,7 @@ def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledg
             lines.append(f"order: an earlier month is still open ({', '.join(earlier)}); close months oldest first")
         raise CloseBlocked(f"Cannot close {month}:\n" + "\n".join(lines), items=failed)
 
+    path = backup(conn, "close")  # only once every check has passed: a refused close leaves no backup behind
     try:
         conn.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES (?, ?)", (month, reason))
         _export_csv(conn, month, path)
