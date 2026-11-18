@@ -114,7 +114,7 @@ The reimbursable balance-sheet line equals -1,898.43 by construction (the plug f
 - 9 card rows and 1 Chase row dated one day apart (posting vs purchase date), same month except MYREALPROFIT (3.1 d).
 - Google 1 Sep 28.80: one statement line, two workbook rows (16.80 + 12.00).
 - Draw 3 Sep 500.00: one workbook row, two ledger rows (-495.22 and fee -4.78, both Owner's Draw).
-- Maersk 21 Apr -8,204.37: type `Pass-through` in the tool, `Reimbursable` in the workbook (L2).
+- Maersk 21 Apr -8,204.37: type `Reimbursable` in the tool, `Pass-through` or `Reimbursable` in the workbook (L2, resolved: one label).
 
 ## 4. Rules 1-8
 
@@ -195,7 +195,7 @@ the same period do not dedupe (PDF after CSV is refused by the tie check; CSV af
 | Invoice Register CSV not written on close | Confirmed. A close wrote `tc_..._close.db` and `..._close_2026-01_transactions.csv` only |
 | Excel "Wise Fee" / "Net Received" blank | Confirmed. 18 of 18 rows blank. The export has 4 tabs (no Balance Sheet) and no button in the app |
 | Golden-loader `source_ref` differs from importer | Confirmed with consequence: `wise_2026-10.csv` on top of golden rows -> 8 inserted, 12 ledger rows, 4 flagged `possible_duplicate`, Wise 31 Oct ledger 11,043.40 vs 13,344.65 |
-| Reimbursable vs Pass-through labels | Confirmed. Category default `Pass-through`; `invoices._target_for` and card rule `Reimbursable`; Wise payment rules `Pass-through`; workbook mixes them. No effect on any total |
+| Reimbursable vs Pass-through labels | Resolved. One label, `Reimbursable`, for every `Reimbursable Expenses Recoverable` row (category default, rules, invoices, loader). `Pass-through` is only for Payable to WA Rubbermate. No effect on any total |
 | Backup pruning | Partly built (5.5): import yes, re-open no, untested |
 | RULES.md 4.3 merge / split on an Owner's Draw flip | Implemented and verified on both paths. `set_category` on the 2 Oct transfer: (-298.87, -1.13) -> draw (-300.00, `fee_cents` 113, child deleted) -> transfer (-298.87 + new -1.13 child); ledger sum unchanged, mismatch view 0. Re-run path: `_Engine._reset` / `_stage5`, tested at `tests/test_pipeline.py` line 617. Not done: a reviewed child blocks the merge silently, no conflict is reported |
 
@@ -278,22 +278,27 @@ for 2026; no code needed unless the jars are used again.
 
 ### LOW
 
-- **L1. Pruning incomplete and untested** (5.5). Take the close backup after the checks pass; prune re-open backups
-  with the import ones. Files: `src/tc/close.py`, `src/tc/pipeline.py`. Test: `test_backup_pruning_keeps_30_and_all_closes`.
-- **L2. Reimbursable vs Pass-through.** Pick one rule and apply it in `rules.yaml`, `invoices._target_for`, the
-  category default. Test: compare `type` in `tests/test_pipeline.py`.
+- **L1. Pruning incomplete and untested** (5.5). Done for re-open backups: `close.prune_backups` keeps the last 30 import
+  and the last 30 re-open backups; close backups are kept. Test: `tests/test_close.py::test_reopen_backups_are_pruned_to_the_last_30`.
+  Still open: take the close backup after the checks pass.
+- **L2. Reimbursable vs Pass-through.** Done: `Reimbursable` everywhere for that category (`rules.yaml`, schema default,
+  golden loader, `upgrade.sql` for older databases). Tests: `tests/test_pipeline.py`, `tests/test_rules.py`, `tests/test_db.py`.
 - **L3. Spec drift.** Chase `source_ref` format (SPEC section 4, RULES.md 4.1); SPEC test names; `backup("rerun")`
   and the `tc rules rerun` CLI of RULES.md 4.2. Update the docs or add the backup. Files: `docs/SPEC.md`,
   `docs/RULES.md`, `src/tc/pipeline.py`.
-- **L4. Lock triggers for `invoice_payments`, `invoices`, `accounts`, `categories`** (5.3). Files:
-  `src/tc/schema.sql` plus a migration for an existing database. Test: `tests/test_db.py::test_locked_month_protects_invoice_links`.
+- **L4. Lock triggers for `invoice_payments`, `invoices`, `accounts`, `categories`** (5.3). Done for `invoice_payments` and
+  `invoices` in `src/tc/upgrade.sql` (`db.upgrade` applies it to an existing database). Test:
+  `tests/test_invoices.py::test_invoice_tables_follow_the_month_lock`. Still open: `accounts`, `categories`.
 - **L5. Close order.** Refuse to close month M while an earlier month with rows is open; on re-open, list later
-  locked months. Files: `src/tc/close.py`. Test: `tests/test_close.py::test_close_requires_earlier_months_locked`.
+  locked months. Done for the refusal (`close.open_months_before`; test `test_cannot_close_a_month_while_an_earlier_one_is_open`).
+  Still open: listing later locked months on re-open.
 - **L6. Excel export.** Fill Wise Fee (fee rows of the paying receipt) and Net Received; add the Balance Sheet tab
   and a download button; strip `[rule:..]` tags from Notes. Files: `src/tc/export_xlsx.py`, `app/pages/4_Reports.py`.
-  Test: `tests/test_export.py`: Wise INV-013 fee 6.11.
+  Wise Fee and Net Received are done (`invoices.invoice_fees`; test `test_invoice_register_has_wise_fee_and_net_received`,
+  INV-013 fee 6.11). Still open: Balance Sheet tab, download button, `[rule:..]` tags in Notes.
 - **L7. False warning on a clean file.** `chase5200/2026-01.pdf`: "ledger-computed lowest daily balance 219578 <>
-  printed 221365". Files: `src/tc/pipeline.py` (`_chase_fee_flags`). Test: no warning on the 9 fixture PDFs.
+  printed 221365". Fixed: the printed low leaves out the statement's last day, so the ledger-computed low does too
+  (`_chase_fee_flags`). Test: `test_chase_january_has_no_false_lowest_balance_warning` (no warning on the 9 PDFs).
 - **L8. Small items.** `rules` table empty until the first `add_rule` (no effect on categorisation; fix inside H1);
   uploads not archived; a reviewed fee child blocks merge / split without a message; README says Close is "enabled
   only when" the checks pass, the button is always enabled and refuses on click.

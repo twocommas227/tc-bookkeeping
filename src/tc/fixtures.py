@@ -82,6 +82,11 @@ def _split_invoice_no(raw: str) -> tuple[str, str]:
     return "Firstbase", raw
 
 
+def _type_label(category: str, type_: str) -> str:
+    """The workbook mixes 'Pass-through' and 'Reimbursable' on Reimbursable Expenses Recoverable rows; one label here."""
+    return "Reimbursable" if category == "Reimbursable Expenses Recoverable" else type_
+
+
 def load_golden(conn: sqlite3.Connection, fixtures_dir: str | Path | None = None) -> None:
     """Load the golden fixture into a freshly initialised DB. Raises if data is already loaded.
 
@@ -121,7 +126,7 @@ def load_golden(conn: sqlite3.Connection, fixtures_dir: str | Path | None = None
                 description=desc,
                 amount_cents=amount,
                 category_id=cat_ids[r["category"]],
-                type=r["type"],
+                type=_type_label(r["category"], r["type"]),
                 source_ref=f"{r['date']}|{amount}|{_norm_desc(desc)}|{seen[key]}",
                 notes=r["notes"] or None,
                 review_status="reviewed",

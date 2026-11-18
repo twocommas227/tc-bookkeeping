@@ -422,8 +422,8 @@ def test_rule2_one_wire_many_invoices(wise_db):
 def test_rule6_customs_and_freight_are_reimbursable(wise_db):
     rows = {r["source_ref"]: r for r in ledger(wise_db, WISE)}
     cbp, maersk = rows["DIRECT_DEBIT-40502598"], rows["TRANSFER-2451302590"]
-    assert (cbp["amount"], cbp["category"], cbp["type"], cbp["review_status"]) == (-551014, REIMB, "Pass-through", "auto")
-    assert (maersk["amount"], maersk["category"], maersk["type"]) == (-13500, REIMB, "Pass-through")
+    assert (cbp["amount"], cbp["category"], cbp["type"], cbp["review_status"]) == (-551014, REIMB, "Reimbursable", "auto")
+    assert (maersk["amount"], maersk["category"], maersk["type"]) == (-13500, REIMB, "Reimbursable")
     assert wise_db.execute("SELECT COUNT(*) FROM invoice_payments WHERE transaction_id = ?", (cbp["id"],)).fetchone()[0] == 0
 
 

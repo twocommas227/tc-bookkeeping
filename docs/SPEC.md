@@ -37,7 +37,8 @@ is - and a payment is +). Balances are signed asset values, so the card *2110 li
 Views: `v_tie_out`, `v_fee_parent_mismatch`, `v_revenue_unbacked`, `v_transfer_net`, `v_pnl_monthly`, `v_invoice_labels`.
 
 Transaction `type` values (exactly as in the workbook, row counts in brackets): `Expense` (106), `Transfer` (56),
-`Personal` (38), `Income` (20), `Pass-through` (8), `Reimbursable` (7).
+`Personal` (38), `Income` (20), `Pass-through` (8), `Reimbursable` (7) in the workbook. The tool uses one label for
+reimbursables: after loading, `Reimbursable` (12) and `Pass-through` (3, Payable to WA Rubbermate only).
 
 Invoice numbering: Wise INV-010..014 overlap the old Firstbase INV-0000xx series. `invoices.source_label` is
 NOT NULL and every display uses `v_invoice_labels.label` ("Wise INV-014" vs "Firstbase INV-000014").
@@ -125,7 +126,7 @@ As of this spec, Jan-Sep 2026 can close; Oct 2026 cannot (Chase *5200 and card *
 | Interest Income | P&L | Other income | Income | 10 | 372.48 |
 | Owner's Draw | Equity (memo, not P&L) | Owner draw | Personal | 38 | -8,048.00 |
 | Bank Transfer | none | Transfer | Transfer | 56 | -1,497.74 (in transit to Chase, Oct) |
-| Reimbursable Expenses Recoverable | Balance sheet | Asset | Pass-through (5), Reimbursable (7) | 12 | -4,745.14 |
+| Reimbursable Expenses Recoverable | Balance sheet | Asset | Reimbursable (12; the workbook has 7 + 5 Pass-through) | 12 | -4,745.14 |
 | Payable to WA Rubbermate | Balance sheet | Liability | Pass-through | 3 | 0.00 |
 | **Total** | | | | **235** | |
 
@@ -139,7 +140,7 @@ Sources (accounts) on the Transactions tab: `USD account 1430` (103 rows), `J. D
 
 The workbook's Type column here uses a different vocabulary from the Transactions tab. Mapping used when the
 rows are loaded into `rules.type`: Revenue -> Income; Balance Sheet -> Reimbursable (vendor payments on the card /
-WA receipts) or Pass-through (Wise payments), as the ledger has it; No P&L -> Transfer; Rule -> `action = 'follow_parent'`.
+WA receipts, Wise payments; Pass-through only for Payable to WA Rubbermate); No P&L -> Transfer; Rule -> `action = 'follow_parent'`.
 
 | # | Vendor / Pattern | Correct Category | Type | Notes |
 |---|---|---|---|---|
@@ -176,7 +177,7 @@ WA receipts) or Pass-through (Wise payments), as the ledger has it; No P&L -> Tr
 | 31 | Firstbase $35 (mailbox / registered agent) | Postage & Delivery | Expense | All months Jan-Sep (was Other Professional Services in the Firstbase export) |
 | 32 | Wise internal "Moved ... to/from Rent & Utilities / Taxes" | Bank Transfer | Transfer | Net zero; jar side kept on its own source line |
 | 33 | CBP TREAS 310 (tariff refund) / payment to WA | Payable to WA Rubbermate | Pass-through | Refund received 29 Jun $18,375.57; sent to WA 8 Jul |
-| 34 | US CBP direct debit ("Paid to US CBP", DIRECT_DEBIT) | Reimbursable Expenses Recoverable | Pass-through | Monthly CBP PMS debit for shipment duty; match to CBP PMS report. Billed to WA on Wise invoice. |
+| 34 | US CBP direct debit ("Paid to US CBP", DIRECT_DEBIT) | Reimbursable Expenses Recoverable | Reimbursable | Monthly CBP PMS debit for shipment duty; match to CBP PMS report. Billed to WA on Wise invoice. |
 
 Loading notes: row 18 is a superseded placeholder (load inactive); rows 9/31, 23/30 and 3/28 overlap - row 30
 (follow the parent) takes priority over row 23.
@@ -219,7 +220,7 @@ Supporting figures (same source, for building fixtures):
 1. Invoice Register "Date Paid" differs from the ledger receipt date for three invoices: INV-000016 (register
    4 May, ledger 2 Jun), INV-000017 (4 Jun vs 18 Jun), INV-000018 (8 Jul vs 16 Jul). The P&L follows the ledger
    (May revenue 0, Jun 5,739.00). The tool takes the payment date from `transactions.date`.
-2. `Reimbursable Expenses Recoverable` rows use two types (`Reimbursable` 7 rows, `Pass-through` 5 rows) with no
-   stated rule for which applies.
+2. `Reimbursable Expenses Recoverable` rows use two types in the workbook (`Reimbursable` 7 rows, `Pass-through` 5 rows)
+   with no stated rule. Resolved in the tool: all 12 load as `Reimbursable`.
 3. Commission Tracker, Jul 2026 "Date Paid" is stored as a raw serial number (46265 = 31 Aug 2026), not a date.
 4. Jan-Aug vs Sep-Oct rows treat Wise fees on draws and Wise->Chase transfers differently (see section 3 notes).

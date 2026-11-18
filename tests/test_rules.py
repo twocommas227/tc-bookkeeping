@@ -233,8 +233,8 @@ OCT_EXPECT = {
     "TRANSFER-2441134368": ("wa-receipt", None, None, "needs_review"),                                              # ex 3 (needs_invoice)
     "TRANSFER-2445337879": ("owner-draw-joshua", "Owner's Draw", "Personal", "auto"),                                # ex 4
     "TRANSFER-2459989965": ("owner-draw-joshua", "Owner's Draw", "Personal", "auto"),                                # ex 5
-    "DIRECT_DEBIT-40502598": ("cbp-direct-debit", "Reimbursable Expenses Recoverable", "Pass-through", "auto"),     # ex 6
-    "TRANSFER-2451302590": ("maersk-wise", "Reimbursable Expenses Recoverable", "Pass-through", "auto"),            # ex 7
+    "DIRECT_DEBIT-40502598": ("cbp-direct-debit", "Reimbursable Expenses Recoverable", "Reimbursable", "auto"),     # ex 6
+    "TRANSFER-2451302590": ("maersk-wise", "Reimbursable Expenses Recoverable", "Reimbursable", "auto"),            # ex 7
 }
 
 

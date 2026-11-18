@@ -150,7 +150,7 @@ def test_golden_sum_per_account_matches_csv(golden_db):
 
 def test_golden_preserves_type_and_notes(golden_db):
     counts = dict(golden_db.execute("SELECT type, COUNT(*) FROM transactions GROUP BY type").fetchall())
-    assert counts == {"Expense": 106, "Transfer": 56, "Personal": 38, "Income": 20, "Pass-through": 8, "Reimbursable": 7}
+    assert counts == {"Expense": 106, "Transfer": 56, "Personal": 38, "Income": 20, "Pass-through": 3, "Reimbursable": 12}
     assert golden_db.execute("SELECT COUNT(*) FROM transactions WHERE notes IS NOT NULL").fetchone()[0] == 129
 
 
@@ -313,3 +313,24 @@ def test_seed_on_initialised_and_on_pre_cutoff_schema_databases(tmp_path):
     with pytest.raises(Exception):
         seed(d, tmp_path / "no_such_fixtures")
     assert d.read_bytes() == snap
+
+
+def test_upgrade_relabels_reimbursables_in_open_months_only(golden_db):
+    """LOW: an older database with 'Pass-through' on reimbursable rows gets one label, locked months untouched."""
+    from tc import db as dbmod
+
+    cat = golden_db.execute("SELECT id FROM categories WHERE name = 'Reimbursable Expenses Recoverable'").fetchone()[0]
+    golden_db.execute("UPDATE categories SET default_type = 'Pass-through' WHERE id = ?", (cat,))
+    golden_db.execute("UPDATE transactions SET type = 'Pass-through' WHERE category_id = ?", (cat,))
+    first = golden_db.execute("SELECT MIN(substr(date,1,7)) FROM transactions WHERE category_id = ?", (cat,)).fetchone()[0]
+    golden_db.execute("DROP TRIGGER trg_month_lock_requires_tie_out")  # the test only needs the lock row
+    golden_db.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES (?, 'test')", (first,))
+    golden_db.commit()
+    locked_rows = golden_db.execute(
+        "SELECT COUNT(*) FROM transactions WHERE category_id = ? AND substr(date,1,7) = ?", (cat, first)).fetchone()[0]
+    dbmod.upgrade(golden_db)
+    dbmod.upgrade(golden_db)  # idempotent
+    assert golden_db.execute("SELECT default_type FROM categories WHERE id = ?", (cat,)).fetchone()[0] == "Reimbursable"
+    rows = dict(golden_db.execute(
+        "SELECT type, COUNT(*) FROM transactions WHERE category_id = ? GROUP BY type", (cat,)).fetchall())
+    assert rows == {"Pass-through": locked_rows, "Reimbursable": 12 - locked_rows}

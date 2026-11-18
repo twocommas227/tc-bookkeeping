@@ -138,8 +138,8 @@ C = `BUS COMPLETE CHK 5200`, K = `J. DECKER 2110`.
 | 40 | owner-draw-joshua | W | raw_type `TRANSFER`, debit, payee `^Joshua (F )?Decker$` | Owner's Draw / Personal | is_fee_parent, fee keep | 17 |
 | 41 | owner-draw-betterment | any | description `BETTERMENT SEC` | Owner's Draw / Personal | | 16 |
 | 42 | owner-draw-irs | W | raw_type `DIRECT_DEBIT`, debit, payee `^IRS$` | Owner's Draw / Personal | | 19 |
-| 45 | cbp-direct-debit | W | raw_type `DIRECT_DEBIT`, debit, payee `^US CBP$` | Reimbursable Expenses Recoverable / Pass-through | | 34 |
-| 46 | maersk-wise | W | raw_type `TRANSFER`, debit, payee `^Maersk` | Reimbursable Expenses Recoverable / Pass-through | is_fee_parent | 3, 28 |
+| 45 | cbp-direct-debit | W | raw_type `DIRECT_DEBIT`, debit, payee `^US CBP$` | Reimbursable Expenses Recoverable / Reimbursable | | 34 |
+| 46 | maersk-wise | W | raw_type `TRANSFER`, debit, payee `^Maersk` | Reimbursable Expenses Recoverable / Reimbursable | is_fee_parent | 3, 28 |
 | 47 | card-wa-passthrough | K | description `MAERSK\|PAYCARGO\|PIERPASS\|PORTCHECK` | Reimbursable Expenses Recoverable / Reimbursable | | 3-6, 28 |
 | 48 | cbp-tariff-refund | W | raw_type `DEPOSIT`, credit, payee `^CBP\s+TREAS 310` | Payable to WA Rubbermate / Pass-through | | 33 |
 | 49 | wa-outbound-wire | W | raw_type `TRANSFER`, debit, payee `^W\.?\s*A\.?\s*RUBBERMATE` | Payable to WA Rubbermate / Pass-through | is_fee_parent, review | 33 |
@@ -697,7 +697,7 @@ Never an expense (SPEC rule 6). Not linked to an invoice: `invoice_payments` rec
 
 | date | account | description | amount_cents | category | type | source_ref | parent | fee_cents | review | key |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 2026-10-23 | USD account 1430 | Paid to US CBP | -551014 | Reimbursable Expenses Recoverable | Pass-through | DIRECT_DEBIT-40502598 | | 0 | auto | match |
+| 2026-10-23 | USD account 1430 | Paid to US CBP | -551014 | Reimbursable Expenses Recoverable | Reimbursable | DIRECT_DEBIT-40502598 | | 0 | auto | match |
 
 **Example 7 - Maersk payment with fee.**
 CSV: `TRANSFER-2451302590`, 24-10-2026, -136.13, fee 1.13. Rule `maersk-wise`; split: -13613 + 113 = -13500.
@@ -705,7 +705,7 @@ The payment is balance sheet; its fee is a real cost (`Bank Charges`).
 
 | date | account | description | amount_cents | category | type | source_ref | parent | fee_cents | review | key |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 2026-10-24 | USD account 1430 | Sent money to Maersk Customs Services USA Inc | -13500 | Reimbursable Expenses Recoverable | Pass-through | TRANSFER-2451302590 | | 0 | auto | match |
+| 2026-10-24 | USD account 1430 | Sent money to Maersk Customs Services USA Inc | -13500 | Reimbursable Expenses Recoverable | Reimbursable | TRANSFER-2451302590 | | 0 | auto | match |
 | 2026-10-24 | USD account 1430 | Wise Charges for: TRANSFER-2451302590 | -113 | Bank Charges | Expense | FEE-TRANSFER-2451302590 | TRANSFER-2451302590 | 0 | auto | match |
 
 **October check.** The 12 rows of examples 1-7 sum to
@@ -875,7 +875,7 @@ fixtures is noticed. When the September statement is supplied, the 6-row exclusi
 |---|---|
 | Jan-Aug draw fees are separate rows, Sep-Oct draws are single rows (SPEC s9 point 4) | `canon()` folds draw fees on both sides (7.2). No row is excluded |
 | Wise -> Chase fee "on top" Jan-Aug vs "taken out" from Sep (SPEC s3 notes) | Not an inconsistency once the two CSV regimes are known: the engine reproduces both from the CSV. No special handling |
-| `Reimbursable Expenses Recoverable` uses two types with no stated rule (SPEC s9 point 2) | `type` is not compared. Engine rule: WA receipts and card vendor charges -> `Reimbursable`; Wise payments (Maersk, CBP) -> `Pass-through`. A separate non-failing report lists type differences. On the compared Wise rows there is exactly one: 21 Apr Maersk -8,204.37 (engine `Pass-through`, key `Reimbursable`). In the uncovered September rows the key has one more (15 Sep WA receipt, key `Pass-through`, engine rule gives `Reimbursable`) |
+| `Reimbursable Expenses Recoverable` used two types in the workbook (SPEC s9 point 2) | One label now: every row of that category is `Reimbursable` (the loader maps the workbook's `Pass-through` rows; the category default and the Wise payment rules use it). `Pass-through` stays for `Payable to WA Rubbermate`. `type` is still not compared |
 | Invoice Register "Date Paid" differs from the ledger for INV-000016 / 017 / 018 (SPEC s9 point 1) | The engine never reads "Date Paid". Revenue month = `transactions.date`; the comparison is on the ledger date, so nothing to adjust |
 | Commission Tracker serial-number date (SPEC s9 point 3) | Not an input to the pipeline |
 | Answer-key descriptions are hand-written | Description is not compared |
@@ -897,7 +897,7 @@ October 12 rows, sum -230125.
 3. **Any wire TO WA** is proposed as `Payable to WA Rubbermate` and always queued (`review: true`).
 4. **Regime A owner draws stay as two rows** (draw + fee, both `Owner's Draw`); only regime B draws are one
    row with `fee_cents`. This differs from the answer key for one row pair (3 Sep).
-5. **Type on Reimbursable rows**: WA receipts and card charges `Reimbursable`, Wise payments `Pass-through`.
+5. **Type on Reimbursable rows**: every `Reimbursable Expenses Recoverable` row is `Reimbursable` (WA receipts, card charges and Wise payments alike); `Pass-through` is only for `Payable to WA Rubbermate`.
 6. **Schema gaps worked around** (no schema change made): review reason and matched rule id live as tags in
    `transactions.notes`; transfer pairs are recomputed, not stored. Dedicated columns would be cleaner.
 7. **Chase fee has a second waiver** ($2,000 Ink card activity in the statement period, section 5.4). SPEC

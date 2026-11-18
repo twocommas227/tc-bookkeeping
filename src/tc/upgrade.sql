@@ -29,3 +29,12 @@ WHEN EXISTS (SELECT 1 FROM invoice_payments ip JOIN transactions t ON t.id = ip.
                JOIN month_locks m ON m.yyyy_mm = substr(t.date,1,7)
               WHERE ip.invoice_id = OLD.id)
 BEGIN SELECT RAISE(ABORT, 'Month is closed and locked'); END;
+
+-- One Type label for reimbursables: 'Reimbursable' (the workbook mixed it with 'Pass-through'). Idempotent. Rows in
+-- locked months keep their old label (the lock triggers refuse the change); only the label changes, never amounts.
+UPDATE categories SET default_type = 'Reimbursable'
+ WHERE name = 'Reimbursable Expenses Recoverable' AND default_type = 'Pass-through';
+UPDATE transactions SET type = 'Reimbursable'
+ WHERE type = 'Pass-through'
+   AND category_id = (SELECT id FROM categories WHERE name = 'Reimbursable Expenses Recoverable')
+   AND substr(date,1,7) NOT IN (SELECT yyyy_mm FROM month_locks);

@@ -149,6 +149,12 @@ python3 -m pytest -q         # or: make test
   app is started from. The default database `data/tc.db` is anchored to the project root the same way.
 - A Wise export must continue from the ledger: if its first new row does not start from the ledger balance (an
   export in between is missing), the import is refused and nothing is saved.
+- Months close oldest first: closing month M is refused while an earlier month with transactions is open.
+- Every `Reimbursable Expenses Recoverable` row has the Type `Reimbursable`; `Pass-through` is only for Payable to WA
+  Rubbermate. An older database is relabelled on the next app start (open months only).
+- Invoice matches and the invoices behind them are locked with the month of their receipt. Re-open backups are pruned to
+  the last 30, like the import ones; month-close backups are kept.
+- The Excel Invoice Register has Wise Fee and Net Received (blank for unpaid invoices).
 - Unmatch (Invoices page) undoes an invoice match in an open month: the invoices go back to Pending and the receipt
   returns to the Review queue.
 - Date change (Transactions page, "Save date") moves a row to another date, open months only. The old date is kept in

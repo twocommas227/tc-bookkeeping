@@ -162,7 +162,7 @@ rules:
       payee: '^US CBP$'
     action: categorize
     category: "Reimbursable Expenses Recoverable"
-    type: Pass-through
+    type: Reimbursable
 
   # Vendor Rules rows: 3, 28
   - id: maersk-wise
@@ -174,7 +174,7 @@ rules:
       payee: '^Maersk'
     action: categorize
     category: "Reimbursable Expenses Recoverable"
-    type: Pass-through
+    type: Reimbursable
     is_fee_parent: true
 
   # Vendor Rules rows: 3, 4, 5, 6, 28

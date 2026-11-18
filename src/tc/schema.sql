@@ -353,7 +353,7 @@ INSERT INTO categories (id, name, statement, section, default_type, pnl_line, so
       'Transfers to Joshua, Betterment, IRS federal income tax. Never on the P&L'),
  (8,  'Bank Transfer',                     'none',          'transfer',     'Transfer',     NULL, 80,
       'Own-account moves: Wise->Chase, card payments, jar moves. Nets to zero'),
- (9,  'Reimbursable Expenses Recoverable', 'balance_sheet', 'asset',        'Pass-through', NULL, 90,
+ (9,  'Reimbursable Expenses Recoverable', 'balance_sheet', 'asset',        'Reimbursable', NULL, 90,
       'Everything fronted for / recovered from WA that is not commission. Never revenue or expense'),
  (10, 'Payable to WA Rubbermate',          'balance_sheet', 'liability',    'Pass-through', NULL, 100,
       'CBP tariff refund held for and paid on to WA, incl. the Wise fee on that wire');
