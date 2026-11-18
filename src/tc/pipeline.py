@@ -330,13 +330,49 @@ def _insert_rows(conn: sqlite3.Connection, rows: list[dict], account_id: int) ->
 
 
 # ====================================================================== statement checks (RULES.md 5.1-5.4)
-def _tie_checks(conn: sqlite3.Connection, parsed: dict, acct: sqlite3.Row) -> tuple[bool, list[str]]:
+def _wise_continuity(conn: sqlite3.Connection, parsed: dict, acct: sqlite3.Row, new_ids: list[int],
+                     allow_gap: bool = False) -> list[str]:
+    """M1: the ledger just before the first new Wise row must equal that day's opening balance in the file.
+
+    The file's own chain was already verified row by row; this ties the file to the LEDGER, so a missing export
+    (e.g. 12-30 Sep) is refused instead of silently leaving a hole. The opening of the first new row's day is the
+    first file row of that day: running balance minus its amount. Skipped when nothing is imported, or when the
+    ledger holds no earlier rows for the account (a first import has nothing to compare with).
+    """
+    if not new_ids:
+        return []
+    day = conn.execute(
+        f"SELECT MIN(date) FROM transactions WHERE id IN ({_qmarks(len(new_ids))})", new_ids).fetchone()[0]
+    prior = (_day(day) - _dt.timedelta(days=1)).isoformat()
+    if conn.execute("SELECT 1 FROM transactions WHERE account_id = ? AND date < ? LIMIT 1",
+                    (acct["id"], day)).fetchone() is None:
+        return []
+    first = next((r for r in parsed["rows"] if r["date"] == day), None)
+    if first is None or first.get("running_balance_cents") is None:
+        return []
+    expected = first["running_balance_cents"] - first["amount_cents"]
+    got = _ledger_at(conn, acct["id"], prior)
+    if got != expected:
+        if allow_gap:
+            return [f"{parsed['filename']}: Wise continuity NOT checked (allow_wise_gap): ledger {got} on {prior} "
+                    f"vs {expected} in the file"]
+        raise ValueError(
+            f"{parsed['filename']}: the ledger balance on {prior} is {got} but this file continues from {expected} "
+            f"on {day}; a Wise export between them is missing (or a row was changed). Import the missing period first"
+        )
+    return []
+
+
+def _tie_checks(conn: sqlite3.Connection, parsed: dict, acct: sqlite3.Row,
+                new_ids: list[int] | None = None, allow_wise_gap: bool = False) -> tuple[bool, list[str]]:
     """Ledger vs statement before commit. Returns (verified, warnings); a mismatch raises ValueError.
 
     Opening is verified when the previous statement's balance is on file (or the statement starts at the
     account's opening); without it (e.g. the missing Aug 2026 card cycle) the check is skipped with a warning,
     because the ledger legitimately cannot tie yet.
     """
+    if parsed["kind"] == "wise_csv":
+        return False, _wise_continuity(conn, parsed, acct, new_ids or [], allow_wise_gap)
     if parsed["kind"] not in ("chase5200_pdf", "card2110_pdf"):
         return False, []
     prior = (_day(parsed["period_start"]) - _dt.timedelta(days=1)).isoformat()
@@ -885,7 +921,8 @@ def run_rules(conn: sqlite3.Connection, row_ids: list[int] | None = None, *, mon
     return {k: rep[k] for k in ("rows", "categorized", "review_counts")}
 
 
-def run_import(conn: sqlite3.Connection, path: str | Path, *, kind: str | None = None) -> dict:
+def run_import(conn: sqlite3.Connection, path: str | Path, *, kind: str | None = None,
+               allow_wise_gap: bool = False) -> dict:
     """RULES.md run_import(file): backup, parse, normalize, insert, stages 3-8, statement balance.
 
     One DB transaction per file; any failure rolls it back and raises ValueError. Rows dated before the
@@ -893,6 +930,8 @@ def run_import(conn: sqlite3.Connection, path: str | Path, *, kind: str | None =
     (accounts.seeded_through, set by the seed command) are skipped, rows in a locked month are rejected.
     Returns {'inserted', 'skipped_duplicate', 'skipped_before_opening', 'skipped_seeded', 'rejected_locked',
      'ledger_rows', 'review_counts', 'warnings', 'kind', 'account', 'filename'}.
+    A Wise file that does not continue from the ledger is refused (M1) unless allow_wise_gap=True, which only
+    downgrades the refusal to a warning (the known 12-30 Sep 2026 hole in the test fixtures; the pages never set it).
     'skipped_seeded' counts lines already in the seeded 2026 history (0 when the account has no cutoff).
     """
     parsed = _parse(path, kind, None)
@@ -907,7 +946,7 @@ def run_import(conn: sqlite3.Connection, path: str | Path, *, kind: str | None =
     try:
         max_before = conn.execute("SELECT COALESCE(MAX(id), 0) FROM transactions").fetchone()[0]
         new_ids, dups, extra = _insert_rows(conn, rows, acct["id"])
-        verified, warnings = _tie_checks(conn, parsed, acct)
+        verified, warnings = _tie_checks(conn, parsed, acct, new_ids, allow_wise_gap)
         if verified:
             flags, more = _chase_fee_flags(conn, acct, parsed, set(new_ids))
             warnings += more

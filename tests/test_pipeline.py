@@ -102,7 +102,8 @@ def new_db() -> sqlite3.Connection:
 
 
 def import_files(conn, files) -> list[dict]:
-    return [pipeline.run_import(conn, f) for f in files]
+    # the fixtures have the documented 12-30 Sep Wise hole (RULES.md 7.3); allow it explicitly here
+    return [pipeline.run_import(conn, f, allow_wise_gap=True) for f in files]
 
 
 def clone(conn) -> sqlite3.Connection:
@@ -719,7 +720,7 @@ def test_orphan_fee_and_unknown_payee_reasons(tmp_path):
     odd = next(l for l in oct_lines if l.startswith("TRANSFER-2451302590")).replace("Maersk Customs Services USA Inc", "Acme Tools")
     g = tmp_path / "odd.csv"
     g.write_text(oct_lines[0] + "\n" + odd, encoding="utf-8")
-    rep = pipeline.run_import(conn, g)
+    rep = pipeline.run_import(conn, g, allow_wise_gap=True)  # a one-row excerpt of another file: not a chain
     assert rep["review_counts"] == {"no_rule": 1, "unknown_payee": 1}
     row = conn.execute("SELECT * FROM transactions WHERE source_ref = 'TRANSFER-2451302590'").fetchone()
     assert row["category_id"] is None and row["amount_cents"] == -13613 and row["fee_cents"] == 113  # left whole
@@ -924,3 +925,18 @@ def test_import_backup_dir_ignores_cwd(tmp_path, monkeypatch):
     assert default.is_absolute() and default.name == "backups"
     assert (default.parent / "src" / "tc" / "schema.sql").exists()
     assert dbmod.DEFAULT_DB_PATH.is_absolute()
+
+
+def test_wise_gap_is_refused(tmp_path):
+    """M1: a Wise export that does not continue from the ledger (an export in between is missing) is refused."""
+    conn = seeded_db(tmp_path)
+    good = wise_november(tmp_path)
+    gap = tmp_path / "wise_gap.csv"  # same rows, but the running balance starts 100.00 higher: 100.00 went missing
+    gap.write_text(good.read_text(encoding="utf-8").replace("13356.65", "13456.65").replace("13370.15", "13470.15"),
+                   encoding="utf-8")
+    n = conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
+    with pytest.raises(ValueError, match="export between them is missing"):
+        pipeline.run_import(conn, gap)
+    assert conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0] == n  # rolled back
+    rep = pipeline.run_import(conn, good)  # the file that does continue from 13,344.65 still imports
+    assert rep["inserted"] == 2 and wise_ledger_at(conn, "2026-11-02") == 1337015
