@@ -1,0 +1,316 @@
+# Two Commas LLC bookkeeping tool - rule file (v1)
+# Source: docs/RULES.md section 1.5. Ordering and values as written there.
+# Vendor Rules rows refer to the 1-based data rows of tests/fixtures/vendor_rules.csv.
+version: 1
+rules:
+  # Vendor Rules rows: 23, 30
+  - id: wise-fee-line
+    priority: 10
+    match:
+      account: "USD account 1430"
+      description: '^Wise Charges for:'
+    action: follow_parent
+
+  # Vendor Rules rows: 22
+  - id: wise-interest
+    priority: 11
+    match:
+      account: "USD account 1430"
+      raw_type: BALANCE_INTEREST
+      sign: credit
+    action: categorize
+    category: "Interest Income"
+    type: Income
+
+  # Vendor Rules rows: 21, 32
+  - id: wise-jar-move
+    priority: 12
+    match:
+      account: "USD account 1430"
+      raw_type: CONVERSION
+      description: '^Moved [\d,.]+ USD (to|from) (Rent & Utilities|Taxes)$'
+    action: categorize
+    category: "Bank Transfer"
+    type: Transfer
+    transfer_role: jar_move
+
+  # Vendor Rules rows: 9, 31
+  - id: firstbase-35
+    priority: 20
+    match:
+      account: "J. DECKER 2110"
+      description: 'FIRSTBASE\.IO'
+      amount_cents: -3500
+    action: categorize
+    category: "Postage & Delivery"
+    type: Expense
+
+  # Vendor Rules rows: 7
+  - id: htgrowth-retainer
+    priority: 21
+    match:
+      account: "J. DECKER 2110"
+      description: '^HTGROWTH'
+      amount_cents: -125000
+    action: categorize
+    category: "Other Professional Services"
+    type: Expense
+
+  # Vendor Rules rows: 24
+  - id: chase-monthly-fee
+    priority: 22
+    match:
+      account: "BUS COMPLETE CHK 5200"
+      description: '^MONTHLY SERVICE FEE'
+      amount_cents: -1500
+    action: categorize
+    category: "Bank Charges"
+    type: Expense
+
+  # Vendor Rules rows: 20
+  - id: wise-to-chase
+    priority: 30
+    match:
+      account: "USD account 1430"
+      raw_type: TRANSFER
+      sign: debit
+      payee: '^Two Commas( LLC)?$'
+    action: categorize
+    category: "Bank Transfer"
+    type: Transfer
+    is_fee_parent: true
+    transfer_role: wise_out
+
+  # Vendor Rules rows: 20
+  - id: chase-from-wise
+    priority: 31
+    match:
+      account: "BUS COMPLETE CHK 5200"
+      sign: credit
+      description: '^REAL TIME TRANSFER RECD'
+    action: categorize
+    category: "Bank Transfer"
+    type: Transfer
+    transfer_role: chase_in
+
+  # Vendor Rules rows: 25
+  - id: chase-card-payment-out
+    priority: 32
+    match:
+      account: "BUS COMPLETE CHK 5200"
+      sign: debit
+      description: 'Payment to Chase card ending in 2110'
+    action: categorize
+    category: "Bank Transfer"
+    type: Transfer
+    transfer_role: card_pay_out
+
+  # Vendor Rules rows: 25
+  - id: card-payment-in
+    priority: 33
+    match:
+      account: "J. DECKER 2110"
+      sign: credit
+      description: '^Payment Thank You'
+    action: categorize
+    category: "Bank Transfer"
+    type: Transfer
+    transfer_role: card_pay_in
+
+  # Vendor Rules rows: 17
+  - id: owner-draw-joshua
+    priority: 40
+    match:
+      account: "USD account 1430"
+      raw_type: TRANSFER
+      sign: debit
+      payee: '^Joshua (F )?Decker$'
+    action: categorize
+    category: "Owner's Draw"
+    type: Personal
+    is_fee_parent: true
+    fee: keep
+
+  # Vendor Rules rows: 16
+  - id: owner-draw-betterment
+    priority: 41
+    match:
+      description: 'BETTERMENT SEC'
+    action: categorize
+    category: "Owner's Draw"
+    type: Personal
+
+  # Vendor Rules rows: 19
+  - id: owner-draw-irs
+    priority: 42
+    match:
+      account: "USD account 1430"
+      raw_type: DIRECT_DEBIT
+      sign: debit
+      payee: '^IRS$'
+    action: categorize
+    category: "Owner's Draw"
+    type: Personal
+
+  # Vendor Rules rows: 28, 34
+  - id: cbp-direct-debit
+    priority: 45
+    match:
+      account: "USD account 1430"
+      raw_type: DIRECT_DEBIT
+      sign: debit
+      payee: '^US CBP$'
+    action: categorize
+    category: "Reimbursable Expenses Recoverable"
+    type: Pass-through
+
+  # Vendor Rules rows: 3, 28
+  - id: maersk-wise
+    priority: 46
+    match:
+      account: "USD account 1430"
+      raw_type: TRANSFER
+      sign: debit
+      payee: '^Maersk'
+    action: categorize
+    category: "Reimbursable Expenses Recoverable"
+    type: Pass-through
+    is_fee_parent: true
+
+  # Vendor Rules rows: 3, 4, 5, 6, 28
+  - id: card-wa-passthrough
+    priority: 47
+    match:
+      account: "J. DECKER 2110"
+      description: 'MAERSK|PAYCARGO|PIERPASS|PORTCHECK'
+    action: categorize
+    category: "Reimbursable Expenses Recoverable"
+    type: Reimbursable
+
+  # Vendor Rules rows: 33
+  - id: cbp-tariff-refund
+    priority: 48
+    match:
+      account: "USD account 1430"
+      raw_type: DEPOSIT
+      sign: credit
+      payee: '^CBP\s+TREAS 310'
+    action: categorize
+    category: "Payable to WA Rubbermate"
+    type: Pass-through
+
+  # Vendor Rules rows: 33
+  - id: wa-outbound-wire
+    priority: 49
+    match:
+      account: "USD account 1430"
+      raw_type: TRANSFER
+      sign: debit
+      payee: '^W\.?\s*A\.?\s*RUBBERMATE'
+    action: categorize
+    category: "Payable to WA Rubbermate"
+    type: Pass-through
+    is_fee_parent: true
+    review: true
+
+  # Vendor Rules rows: 11
+  - id: sw-sellerboard
+    priority: 50
+    match:
+      account: "J. DECKER 2110"
+      description: 'SELLERBOARD'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: 12, 26
+  - id: sw-google
+    priority: 51
+    match:
+      account: "J. DECKER 2110"
+      description: '^GOOGLE \*(Workspace|SVCS)'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: 13
+  - id: sw-myrealprofit
+    priority: 52
+    match:
+      account: "J. DECKER 2110"
+      description: 'MYREALPROFIT'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: 14
+  - id: sw-anthropic
+    priority: 53
+    match:
+      account: "J. DECKER 2110"
+      description: 'ANTHROPIC|CLAUDE\.AI'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: 15
+  - id: sw-openai
+    priority: 54
+    match:
+      account: "J. DECKER 2110"
+      description: 'OPENAI'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: 29
+  - id: sw-cloudflare
+    priority: 55
+    match:
+      account: "J. DECKER 2110"
+      description: 'CLOUDFLARE'
+    action: categorize
+    category: "Software & Web Services"
+    type: Expense
+
+  # Vendor Rules rows: none (not on the Vendor Rules tab; RULES.md 1.5 cites the Feb ledger line)
+  - id: card-fx-fee
+    priority: 56
+    match:
+      account: "J. DECKER 2110"
+      description: '^FOREIGN TRANSACTION FEE'
+    action: categorize
+    category: "Bank Charges"
+    type: Expense
+
+  # Vendor Rules rows: 1, 2, 27
+  - id: wa-receipt
+    priority: 60
+    match:
+      account: "USD account 1430"
+      raw_type: DEPOSIT
+      sign: credit
+      payee: '^W\.?\s*A\.?\s*RUBBERMATE'
+    action: needs_invoice
+    is_fee_parent: true
+
+  # Vendor Rules rows: 8, 10
+  - id: firstbase-other
+    priority: 61
+    match:
+      account: "J. DECKER 2110"
+      description: 'FIRSTBASE\.IO'
+    action: categorize
+    category: "Other Professional Services"
+    type: Expense
+
+  # Vendor Rules rows: 7
+  - id: htgrowth-other
+    priority: 62
+    match:
+      account: "J. DECKER 2110"
+      description: '^HTGROWTH'
+    action: categorize
+    category: "Other Professional Services"
+    type: Expense
+    review: true

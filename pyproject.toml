@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tc"
+version = "0.1.0"
+description = "Two Commas LLC local bookkeeping tool"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit",
+    "pandas",
+    "PyYAML",
+    "openpyxl",
+    "pdfplumber",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.setuptools.package-data]
+tc = ["schema.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
+data/
+backups/*.db
+backups/*.csv
+
+# Private financial data: keep out of Git
+tests/fixtures/
+*.db
+.env
+backups/
+*.pdf
