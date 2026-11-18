@@ -304,3 +304,16 @@ def test_firstbase_series_can_be_entered_on_a_fresh_database(tmp_path, monkeypat
     assert _query(path, "SELECT l.label, i.amount_cents FROM v_invoice_labels l JOIN invoices i ON i.id = l.id") == [
         ("Firstbase INV-000001", 5000)]
     assert at.selectbox(key="inv_new_source").options == ["Wise", "Firstbase", "Other..."]  # now a suggestion too
+
+
+def test_unmatch_button_reopens_invoices(golden_path):
+    at = _run("2026-10")
+    assert not at.exception
+    wire = _query(golden_path, "SELECT transaction_id FROM invoice_payments ip JOIN transactions t ON t.id = ip.transaction_id "
+                               "WHERE t.date = '2026-10-19' LIMIT 1")
+    assert wire, "golden data has the 19 Oct wire matched to INV-013 + INV-014"
+    at.selectbox(key="unmatch_receipt").set_value(wire[0][0])
+    at.button(key="unmatch_btn").click().run()
+    assert not at.exception
+    assert _query(golden_path, "SELECT COUNT(*) FROM invoice_payments WHERE transaction_id = ?", wire[0]) == [(0,)]
+    assert _query(golden_path, "SELECT status FROM invoices WHERE number IN ('INV-013','INV-014') AND source_label = 'Wise'") == [("Pending",), ("Pending",)]

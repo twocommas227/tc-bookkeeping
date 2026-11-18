@@ -22,7 +22,7 @@ from .errors import LockedMonthError, translate_integrity_error
 __all__ = [
     "list_invoices", "unpaid", "add_invoice", "void_invoice", "unmatched_receipts", "match_payment",
     "split_receipt", "commission_check", "missing_commission_months", "parse_invoice_refs",
-    "propose_match", "backfill_payments", "flag_commission_mismatches",
+    "propose_match", "backfill_payments", "flag_commission_mismatches", "unmatch_payment", "matched_receipts",
 ]
 
 SERVICE_REVENUE = "Service Revenue"
@@ -499,6 +499,41 @@ def match_payment(conn: sqlite3.Connection, transaction_id: int, allocations: li
     _check_locked(conn, tx["date"])
     with _atomic(conn):
         _apply_match(conn, tx, allocations)
+
+
+def unmatch_payment(conn: sqlite3.Connection, transaction_id: int) -> list[int]:
+    """Undo match_payment for one receipt: delete its invoice_payments rows and set those invoices back to Pending.
+
+    The receipt keeps its category and goes back to needs_review, so it shows in the Review queue and (if it is
+    Service Revenue) in the revenue-unbacked check until it is matched again or recategorised. A split row stays
+    split. Returns the invoice ids that were reopened. Raises ValueError (receipt not matched), LockedMonthError.
+    """
+    tx = _get_tx(conn, transaction_id)
+    _check_locked(conn, tx["date"])
+    ids = [r[0] for r in conn.execute(
+        "SELECT invoice_id FROM invoice_payments WHERE transaction_id = ? ORDER BY id", (tx["id"],))]
+    if not ids:
+        raise ValueError("this receipt is not matched to any invoice")
+    with _atomic(conn):
+        conn.execute("DELETE FROM invoice_payments WHERE transaction_id = ?", (tx["id"],))
+        for inv_id in ids:
+            conn.execute("UPDATE invoices SET status = 'Pending' WHERE id = ? AND type <> 'Voided'", (inv_id,))
+        conn.execute("UPDATE transactions SET review_status = 'needs_review' WHERE id = ?", (tx["id"],))
+    return ids
+
+
+def matched_receipts(conn: sqlite3.Connection) -> list[dict]:
+    """Receipts that have invoices matched, newest first: id, date, account, description, amount_cents, labels, locked."""
+    rows = conn.execute(
+        """SELECT t.id, t.date, a.source_label AS account, t.description, t.amount_cents,
+                  (SELECT group_concat(l.label, ', ') FROM invoice_payments ip
+                     JOIN v_invoice_labels l ON l.id = ip.invoice_id WHERE ip.transaction_id = t.id) AS labels,
+                  EXISTS (SELECT 1 FROM month_locks m WHERE m.yyyy_mm = substr(t.date,1,7)) AS locked
+             FROM transactions t JOIN accounts a ON a.id = t.account_id
+            WHERE EXISTS (SELECT 1 FROM invoice_payments ip WHERE ip.transaction_id = t.id)
+            ORDER BY t.date DESC, t.id DESC"""
+    ).fetchall()
+    return [dict(r, locked=bool(r["locked"])) for r in rows]
 
 
 def split_receipt(

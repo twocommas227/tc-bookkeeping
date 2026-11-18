@@ -98,6 +98,35 @@ if pending:
 else:
     st.write("Nothing unpaid.")
 
+# ------------------------------------------------------------------ (E2) unmatch payment
+st.subheader("Unmatch payment")
+matched = [m for m in invoices.matched_receipts(conn) if not m["locked"]]
+if not matched:
+    st.write("No matched receipts in open months.")
+else:
+    m_by_id = {m["id"]: m for m in matched}
+    um_id = st.selectbox(
+        "Matched receipt",
+        list(m_by_id),
+        format_func=lambda i: (
+            f"{m_by_id[i]['date']}  {m_by_id[i]['description']}  {money(m_by_id[i]['amount_cents'])}"
+            f"  ->  {m_by_id[i]['labels']}"
+        ),
+        key="unmatch_receipt",
+    )
+    st.caption("The invoices go back to Pending and the receipt returns to the Review queue.")
+    if st.button("Unmatch", key="unmatch_btn"):
+        try:
+            reopened = invoices.unmatch_payment(conn, um_id)
+        except close.LockedMonthError as exc:
+            locked_notice(exc)
+        except ValueError as exc:
+            st.error(str(exc))
+        else:
+            ui_common.flash(f"Unmatched receipt; {len(reopened)} invoice(s) are Pending again.")
+            st.session_state.pop("unmatch_receipt", None)
+            st.rerun()
+
 # ------------------------------------------------------------------ (C) register
 st.subheader("Register")
 f1, f2 = st.columns(2)

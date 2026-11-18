@@ -387,3 +387,30 @@ def test_void_invoice(golden_db):
     assert inv.unpaid(golden_db, as_of="2026-11-15") == []
     with pytest.raises(ValueError, match="Pending"):
         inv.void_invoice(golden_db, i10, "again")
+
+
+def test_unmatch_payment_reopens_invoices(golden_db):
+    tx = _golden_tx(golden_db, "2026-10-19", 570600)
+    a, b = _invoice_id(golden_db, "Wise", "INV-013"), _invoice_id(golden_db, "Wise", "INV-014")
+    with pytest.raises(ValueError, match="not matched"):
+        inv.unmatch_payment(golden_db, tx)
+    inv.match_payment(golden_db, tx, [(a, 301600), (b, 269000)])
+    assert [m["id"] for m in inv.matched_receipts(golden_db) if m["id"] == tx]
+    assert sorted(inv.unmatch_payment(golden_db, tx)) == sorted([a, b])
+    assert golden_db.execute("SELECT COUNT(*) FROM invoice_payments WHERE transaction_id = ?", (tx,)).fetchone()[0] == 0
+    assert {r[0] for r in golden_db.execute("SELECT status FROM invoices WHERE id IN (?,?)", (a, b))} == {"Pending"}
+    assert golden_db.execute("SELECT review_status FROM transactions WHERE id = ?", (tx,)).fetchone()[0] == "needs_review"
+    inv.match_payment(golden_db, tx, [(a, 301600), (b, 269000)])  # can be matched again
+    assert {r[0] for r in golden_db.execute("SELECT status FROM invoices WHERE id IN (?,?)", (a, b))} == {"Paid"}
+
+
+def test_unmatch_payment_refused_in_locked_month(golden_db):
+    tx = _golden_tx(golden_db, "2026-01-30", 378650)
+    inv_id = _invoice_id(golden_db, "Firstbase", "INV-000005")
+    inv.match_payment(golden_db, tx, [(inv_id, 378650)])
+    golden_db.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES ('2026-01', 'test close')")
+    golden_db.commit()
+    with pytest.raises(LockedMonthError):
+        inv.unmatch_payment(golden_db, tx)
+    assert golden_db.execute("SELECT COUNT(*) FROM invoice_payments WHERE transaction_id = ?", (tx,)).fetchone()[0] == 1
+    assert [m for m in inv.matched_receipts(golden_db) if m["id"] == tx][0]["locked"] is True
