@@ -188,3 +188,17 @@ def test_oct_page_explains_the_28_nov_card_statement(golden_path):
     assert not at.exception
     assert any("28 Nov card statement" in i.value for i in at.info)
     assert not any("28 Nov card statement" in i.value for i in _run("2026-09").info)
+
+
+def test_reopen_warns_about_later_locked_months_and_download_exists(golden_path):
+    conn = db.connect(golden_path)
+    try:
+        for m in ("2026-01", "2026-02"):
+            close.close_month(conn, m, "close " + m, acknowledge_tail=True)
+    finally:
+        conn.close()
+    at = _run("2026-01")
+    assert not at.exception
+    assert any("Later months are still locked: 2026-02" in w.value for w in at.warning)
+    assert not any("Later months" in w.value for w in _run("2026-02").warning)
+    assert at.get("download_button") and any("Excel" in b.proto.label for b in at.get("download_button"))

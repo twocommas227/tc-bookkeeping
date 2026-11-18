@@ -15,7 +15,7 @@ def test_export_workbook_golden(golden_db, tmp_path):
     export_workbook(golden_db, path, year=2026)
 
     wb = load_workbook(path)  # formulas are kept as strings starting with '=', so this checks for them below
-    assert wb.sheetnames == ["Transactions", "Invoice Register", "Bank Tie-out", "Profit & Loss"]
+    assert wb.sheetnames == ["Transactions", "Invoice Register", "Bank Tie-out", "Profit & Loss", "Balance Sheet"]
 
     # no formulas anywhere
     for ws in wb.worksheets:
@@ -76,3 +76,23 @@ def test_invoice_register_has_wise_fee_and_net_received(golden_db, tmp_path):
         assert got[name] == expected, name
     assert got["Wise INV-013"] == (6.11, 3009.89) and got["Wise INV-014"] == (0.0, 2690.0)
     assert got["Wise INV-010"] == (None, None)  # pending: blank, not 0
+
+
+def test_export_balance_sheet_tab_and_clean_notes(golden_db, tmp_path):
+    """LOW L6: Balance Sheet tab matches reports.balance_sheet; Notes carry no [rule:..] / [review:..] tags."""
+    from tc import reports
+
+    path = tmp_path / "x.xlsx"
+    export_workbook(golden_db, path, year=2026, as_of="2026-09-30")
+    ws = load_workbook(path)["Balance Sheet"]
+    assert [c.value for c in ws[1]] == ["Section", "Line", "As of 2026-09-30"]
+    got = {r[1]: r[2] for r in _rows(ws)}
+    want = {b["line"]: b["amount_cents"] / 100 for b in reports.balance_sheet(golden_db, "2026-09-30")}
+    assert got == want
+    assert got["EQUITY (assets - liabilities)"] == 11812.68  # golden: equity at 30 Sep
+    golden_db.execute("UPDATE transactions SET notes = '[rule:x][review:no_rule] checked with WA' WHERE id = 1")
+    export_workbook(golden_db, path, year=2026)
+    notes = [r[6] for r in _rows(load_workbook(path)["Transactions"])]
+    assert "checked with WA" in notes and not any(n and "[rule:" in n or n and "[review:" in n for n in notes)
+    export_workbook(golden_db, path, year=2026)
+    assert [c.value for c in load_workbook(path)["Balance Sheet"][1]][2] == "As of 2026-10-31"  # default: end of the last transaction month

@@ -6,6 +6,8 @@ Read-only against the database. Tab names, column order and labels follow Two_Co
 
 from __future__ import annotations
 
+import calendar
+import re
 import sqlite3
 from datetime import date
 from pathlib import Path
@@ -33,6 +35,16 @@ TIE_LINES = ("As of", "Ledger balance", "Statement balance", "Diff")
 
 
 # ------------------------------------------------------------------ helpers
+_NOTE_TAGS = re.compile(r"^\s*(?:\[(?:rule|review):[^\]]*\]\s*)+")
+
+
+def _note(value):
+    """Notes for the accountant: the tool's own [rule:..][review:..] tags are internal, only the free text goes out."""
+    if not value:
+        return None
+    return _text(_NOTE_TAGS.sub("", value).strip() or None)
+
+
 def _text(value):
     """Keep text as text: a leading '=' would be written as a formula, so a space is put in front of it."""
     if isinstance(value, str) and value.startswith("="):
@@ -85,7 +97,7 @@ def _transactions_sheet(ws: Worksheet, conn: sqlite3.Connection, year: int) -> N
     for r in rows:
         ws.append([
             _iso_date(r["date"]), _text(r["description"]), _text(r["source_label"]),
-            _dollars(r["amount_cents"]), _text(r["category"]), _text(r["type"]), _text(r["notes"]),
+            _dollars(r["amount_cents"]), _text(r["category"]), _text(r["type"]), _note(r["notes"]),
         ])
     _format_column(ws, 1, DATE_FORMAT)
     _format_column(ws, 4, MONEY_FORMAT)
@@ -183,8 +195,33 @@ def _pnl_sheet(ws: Worksheet, conn: sqlite3.Connection, year: int) -> None:
 
 
 # ------------------------------------------------------------------ entry point
-def export_workbook(conn: sqlite3.Connection, path: str | Path, year: int = 2026) -> None:
-    """Write the accounting workbook for ``year`` to ``path`` (.xlsx, values only)."""
+def _balance_sheet_sheet(ws: Worksheet, conn: sqlite3.Connection, as_of: str) -> None:
+    _header(ws, ["Section", "Line", f"As of {as_of}"])
+    for b in reports.balance_sheet(conn, as_of):
+        ws.append([b["section"].capitalize(), _text(b["line"]), _dollars(b["amount_cents"])])
+        if b["kind"] == "total":
+            for cell in ws[ws.max_row]:
+                cell.font = Font(bold=True)
+    _format_column(ws, 3, MONEY_FORMAT)
+    ws.freeze_panes = "A2"
+    _widths(ws, [14, 46, 18])
+
+
+def export_workbook(conn: sqlite3.Connection, path: str | Path, year: int = 2026, as_of: str | None = None) -> None:
+    """Write the accounting workbook for ``year`` to ``path`` (.xlsx, values only).
+
+    The Balance Sheet tab is as of ``as_of`` (default: the end of the month of the last transaction of ``year``,
+    else 31 Dec).
+    """
+    if as_of is None:
+        last = conn.execute(
+            "SELECT MAX(date) FROM transactions WHERE substr(date, 1, 4) = ?", (f"{year:04d}",)
+        ).fetchone()[0]
+        if last:
+            y, m = int(last[:4]), int(last[5:7])
+            as_of = f"{y:04d}-{m:02d}-{calendar.monthrange(y, m)[1]:02d}"
+        else:
+            as_of = f"{year:04d}-12-31"
     wb = Workbook()
     ws_tx = wb.active
     ws_tx.title = "Transactions"
@@ -192,4 +229,5 @@ def export_workbook(conn: sqlite3.Connection, path: str | Path, year: int = 2026
     _invoice_sheet(wb.create_sheet("Invoice Register"), conn)
     _tie_out_sheet(wb.create_sheet("Bank Tie-out"), conn, year)
     _pnl_sheet(wb.create_sheet("Profit & Loss"), conn, year)
+    _balance_sheet_sheet(wb.create_sheet("Balance Sheet"), conn, as_of)
     wb.save(str(path))

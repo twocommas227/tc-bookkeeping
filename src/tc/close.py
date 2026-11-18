@@ -22,7 +22,8 @@ from .errors import CloseBlocked, LockedMonthError, translate_integrity_error
 
 __all__ = [
     "CloseBlocked", "LockedMonthError", "is_locked", "lock_info", "expected_statement_dates",
-    "set_statement_balance", "checklist", "close_month", "reopen_month", "backup",
+    "set_statement_balance", "checklist", "close_month", "reopen_month", "backup", "open_months_before",
+    "locked_months_after",
 ]
 
 BACKUP_DIR_ENV = "TC_BACKUP_DIR"
@@ -297,6 +298,11 @@ def open_months_before(conn: sqlite3.Connection, month: str) -> list[str]:
             WHERE substr(t.date,1,7) < ?
               AND substr(t.date,1,7) NOT IN (SELECT yyyy_mm FROM month_locks)
             ORDER BY m""", (month,))]
+
+
+def locked_months_after(conn: sqlite3.Connection, month: str) -> list[str]:
+    """Locked months after ``month``, oldest first. Re-opening ``month`` leaves these locked, so they are listed."""
+    return [r[0] for r in conn.execute("SELECT yyyy_mm FROM month_locks WHERE yyyy_mm > ? ORDER BY yyyy_mm", (month,))]
 
 
 KEEP_BACKUPS = 30  # import and re-open backups are pruned to the last 30; month-close backups are kept forever

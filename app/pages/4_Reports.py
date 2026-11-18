@@ -267,6 +267,12 @@ if month == "2026-10":
 
 if lock:
     st.write(f'LOCKED {lock["locked_at"]} "{lock["reason"] or ""}"')
+    later = close.locked_months_after(conn, month)
+    if later:
+        st.warning(
+            f"Later months are still locked: {', '.join(later)}. Re-opening {month} leaves them locked; they were "
+            f"closed with the current {month} numbers, so close {month} again before changing anything in it."
+        )
     reopen_reason = st.text_input("Re-open reason", key="reopen_reason")
     if st.button(f"Re-open month {month}", key="reopen_btn"):
         if not reopen_reason.strip():
@@ -277,7 +283,10 @@ if lock:
             except ValueError as exc:
                 st.error(str(exc))
             else:
-                ui_common.flash(f"Month {month} re-opened.")
+                ui_common.flash(
+                    f"Month {month} re-opened."
+                    + (f" Later months still locked: {', '.join(later)}." if later else "")
+                )
                 st.rerun()
 else:
     for it in items:
@@ -314,3 +323,20 @@ else:
             else:
                 ui_common.flash(f"Month {month} closed and locked.")
                 st.rerun()
+
+# ------------------------------------------------------------------ (F) export for the accountant
+st.header(f"F. Excel export {year}")
+import tempfile  # noqa: E402
+
+from tc import export_xlsx  # noqa: E402
+
+with tempfile.TemporaryDirectory() as _tmp:
+    _xlsx = pathlib.Path(_tmp) / f"Two_Commas_Accounting_{year}.xlsx"
+    export_xlsx.export_workbook(conn, _xlsx, year, as_of=bs_date.isoformat() if bs_date.year == year else None)
+    _xlsx_bytes = _xlsx.read_bytes()
+st.download_button(
+    f"Download Excel {year}", data=_xlsx_bytes, file_name=f"Two_Commas_Accounting_{year}.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="rep_xlsx_btn",
+)
+st.caption("Tabs: Transactions, Invoice Register, Bank Tie-out, Profit & Loss, Balance Sheet (as of the date in C "
+           "when it falls in this year). Values only, no formulas.")

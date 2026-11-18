@@ -291,3 +291,12 @@ def test_close_backup_is_taken_only_after_the_checks_pass(db, tmp_path):
     import sqlite3
     with sqlite3.connect(str(snaps[0])) as snap:  # the backup is the state just before the lock
         assert snap.execute("SELECT COUNT(*) FROM month_locks").fetchone()[0] == 0
+
+
+def test_locked_months_after_lists_what_a_reopen_leaves_locked(db, tmp_path):
+    for m in ("2026-01", "2026-02", "2026-03"):
+        close.close_month(db, m, "close " + m, acknowledge_tail=True)
+    assert close.locked_months_after(db, "2026-01") == ["2026-02", "2026-03"]
+    assert close.locked_months_after(db, "2026-03") == []
+    close.reopen_month(db, "2026-01", "fix")
+    assert close.locked_months_after(db, "2026-01") == ["2026-02", "2026-03"]  # still locked after the re-open
