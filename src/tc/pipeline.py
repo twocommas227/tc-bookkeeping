@@ -196,12 +196,7 @@ def _backup(conn: sqlite3.Connection, reason: str) -> Path:
     Keeps the last KEEP_BACKUPS backups of this reason; month-close and re-open backups are other files.
     """
     dest = _close.backup(conn, reason)
-    older = sorted(dest.parent.glob(f"tc_*_{reason}.db"), key=lambda p: p.stat().st_mtime)
-    for old in older[:-KEEP_BACKUPS]:
-        try:
-            old.unlink()
-        except OSError:
-            pass
+    _close.prune_backups(dest.parent, reason, KEEP_BACKUPS)
     return dest
 
 

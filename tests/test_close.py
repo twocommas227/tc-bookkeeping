@@ -1,6 +1,7 @@
 """Month close gate, locks, statement balances, backups (SPEC section 5, rule 8; UI.md sections 2-4)."""
 
 import csv
+import os
 import sqlite3
 
 import pytest
@@ -251,3 +252,17 @@ def test_backup_commits_pending_writes_instead_of_hanging(db):
     path = close.backup(db, "pending")
     with sqlite3.connect(str(path)) as other:
         assert other.execute("SELECT COUNT(*) FROM transactions WHERE notes = 'pending'").fetchone()[0] == 1
+
+
+def test_reopen_backups_are_pruned_to_the_last_30(db, tmp_path):
+    for i in range(35):  # stale re-open backups from earlier re-opens
+        f = tmp_path / f"tc_20250101_0000{i:02d}_reopen.db"
+        f.write_bytes(b"x")
+        os.utime(f, (1_000_000 + i, 1_000_000 + i))
+    close.close_month(db, "2026-01", "jan", acknowledge_tail=True)
+    close.reopen_month(db, "2026-01", "fix")
+    kept = sorted(p.name for p in tmp_path.glob("tc_*_reopen.db"))
+    assert len(kept) == 30
+    assert "tc_20250101_000000_reopen.db" not in kept and any(n.endswith("_reopen.db") and "2025" not in n for n in kept)
+    assert list(tmp_path.glob("tc_*_close.db"))  # month-close backups are never pruned
+    assert close.prune_backups(tmp_path, "close", keep=0) != [] and not list(tmp_path.glob("tc_*_close.db"))

@@ -290,6 +290,23 @@ def backup(conn: sqlite3.Connection, reason: str) -> Path:
     return path
 
 
+KEEP_BACKUPS = 30  # import and re-open backups are pruned to the last 30; month-close backups are kept forever
+
+
+def prune_backups(folder: Path, reason: str, keep: int = KEEP_BACKUPS) -> list[Path]:
+    """Delete all but the newest ``keep`` ``tc_*_<reason>.db`` files in ``folder``. Returns what was deleted."""
+    tag = re.sub(r"[^A-Za-z0-9_-]+", "_", str(reason or "").strip()).strip("_") or "backup"
+    older = sorted(folder.glob(f"tc_*_{tag}.db"), key=lambda p: (p.stat().st_mtime, p.name))
+    gone = []
+    for old in older[:-keep] if keep > 0 else older:
+        try:
+            old.unlink()
+            gone.append(old)
+        except OSError:
+            pass
+    return gone
+
+
 def _export_csv(conn: sqlite3.Connection, month: str, backup_path: Path) -> Path:
     path = backup_path.with_name(f"{backup_path.stem}_{month}_transactions.csv")
     cols = ["id", "date", "account", "description", "amount_cents", "amount", "category", "type", "payee",
@@ -369,4 +386,5 @@ def reopen_month(conn: sqlite3.Connection, month: str, reason: str) -> Path:
     path = backup(conn, "reopen")
     conn.execute("DELETE FROM month_locks WHERE yyyy_mm = ?", (month,))
     conn.commit()
+    prune_backups(path.parent, "reopen")
     return path
