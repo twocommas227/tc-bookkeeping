@@ -1,0 +1,236 @@
+date,description,source,amount,category,type,notes
+2026-01-01,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-01-01,MYREALPROFIT.COM,J. DECKER 2110,-47.00,Software & Web Services,Expense,
+2026-01-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-01-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.19,Software & Web Services,Expense,
+2026-01-01,Interest (Received),USD account 1430,22.08,Interest Income,Income,Wise BALANCE_INTEREST-6b6d9853-20d2-49a8-b8cd-333ccf38d1d2
+2026-01-07,Payment Thank You-Mobile,J. DECKER 2110,1715.91,Bank Transfer,Transfer,
+2026-01-07,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,1500.00,Bank Transfer,Transfer,
+2026-01-07,Payment to Chase card ending in 2110 01/07,BUS COMPLETE CHK 5200,-1715.91,Bank Transfer,Transfer,
+2026-01-08,Wise fee - TRANSFER-1909616554,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-1909616554
+2026-01-08,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-1500.00,Bank Transfer,Transfer,Wise TRANSFER-1909616554
+2026-01-09,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-01-15,HTGROWTH,J. DECKER 2110,-182.87,Other Professional Services,Expense,
+2026-01-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-01-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-01-26,Moved 293.00 USD from USD,Wise USD - Rent & Utilities 0000,293.00,Bank Transfer,Transfer,
+2026-01-26,Sent money to Joshua F Decker (fee: 3.70 USD) Reference: 2co,Wise USD - Rent & Utilities 0000,-289.30,Owner's Draw,Personal,Was: Utilities Expense; Reclass: was Rent Expense -> Owner's Draw (Oct 2026 decision)
+2026-01-26,Wise Charges for: TRANSFER-1937910709 Reference: 2commas - R,Wise USD - Rent & Utilities 0000,-3.70,Owner's Draw,Personal, fee on owner-draw transfer (kept inside draw)
+2026-01-26,Moved 293.00 USD to Rent & Utilities (Wise internal),USD account 1430,-293.00,Bank Transfer,Transfer,Wise BALANCE-4695954807
+2026-01-29,Payment Thank You-Mobile,J. DECKER 2110,1467.87,Bank Transfer,Transfer,
+2026-01-29,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,1450.00,Bank Transfer,Transfer,
+2026-01-29,Wise fee - TRANSFER-1944728060,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-1944728060
+2026-01-29,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-1450.00,Bank Transfer,Transfer,Wise TRANSFER-1944728060
+2026-01-30,Payment to Chase card ending in 2110 01/30,BUS COMPLETE CHK 5200,-1467.87,Bank Transfer,Transfer,
+2026-01-30,Wise fee - TRANSFER-1947022272,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-1947022272
+2026-01-30,W.A. Rubbermate - INV-000005 Dec 2025 commission,USD account 1430,3786.50,Service Revenue,Income,Wise TRANSFER-1947022272
+2026-01-31,MYREALPROFIT.COM,J. DECKER 2110,-47.00,Software & Web Services,Expense,
+2026-02-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-02-01,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-02-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.28,Software & Web Services,Expense,
+2026-02-01,Interest (Received),USD account 1430,23.98,Interest Income,Income,Wise BALANCE_INTEREST-6dec2330-583d-49a4-93f3-d6846e38fdd4
+2026-02-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-02-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-02-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-02-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-02-27,Moved 293.00 USD from USD,Wise USD - Rent & Utilities 0000,293.00,Bank Transfer,Transfer,
+2026-02-27,Wise Charges for: TRANSFER-1993122349,Wise USD - Rent & Utilities 0000,-3.69,Owner's Draw,Personal, fee on owner-draw transfer (kept inside draw)
+2026-02-27,Sent money to Joshua F Decker (fee: 3.69 USD),Wise USD - Rent & Utilities 0000,-289.31,Owner's Draw,Personal,Was: Utilities Expense; Reclass: was Rent Expense -> Owner's Draw (Oct 2026 decision)
+2026-02-27,FOREIGN TRANSACTION FEE,J. DECKER 2110,-31.23,Bank Charges,Expense,
+2026-02-27,HTGROWTH,J. DECKER 2110,-1041.02,Other Professional Services,Expense,
+2026-02-27,Moved 293.00 USD to Rent & Utilities (Wise internal),USD account 1430,-293.00,Bank Transfer,Transfer,Wise BALANCE-4862138441
+2026-03-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-03-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.28,Software & Web Services,Expense,
+2026-03-01,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-03-01,Payment Thank You - Web,J. DECKER 2110,2612.33,Bank Transfer,Transfer,
+2026-03-02,Payment to Chase card ending in 2110 03/02,BUS COMPLETE CHK 5200,-2612.33,Bank Transfer,Transfer,
+2026-03-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-03-02,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,2700.00,Bank Transfer,Transfer,
+2026-03-02,Interest (Received),USD account 1430,25.85,Interest Income,Income,Wise BALANCE_INTEREST-706abba6-0dc4-4eb8-4d0c-e7d7db158302
+2026-03-02,Wise fee - TRANSFER-1998755965,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-1998755965
+2026-03-02,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-2700.00,Bank Transfer,Transfer,Wise TRANSFER-1998755965
+2026-03-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-03-05,Wise fee - TRANSFER-2006380669,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2006380669
+2026-03-05,W.A. Rubbermate - INV-000006 Jan 2026 commission,USD account 1430,3533.50,Service Revenue,Income,Wise TRANSFER-2006380669
+2026-03-05,Wise fee - TRANSFER-2006380665,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2006380665
+2026-03-05,W.A. Rubbermate - INV-000008 8th shipment demurrage reimbursement,USD account 1430,900.00,Reimbursable Expenses Recoverable,Reimbursable,Wise TRANSFER-2006380665
+2026-03-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-03-18,Wise fee - TRANSFER-2028794674,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2028794674
+2026-03-18,W.A. Rubbermate - INV-000009 Feb 2026 commission,USD account 1430,3049.00,Service Revenue,Income,Wise TRANSFER-2028794674
+2026-03-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-03-25,Sent money to Joshua F Decker (fee: 3.61 USD),Wise USD - Rent & Utilities 0000,-289.39,Owner's Draw,Personal,Was: Utilities Expense; Reclass: was Rent Expense -> Owner's Draw (Oct 2026 decision)
+2026-03-25,Moved 293.00 USD from USD,Wise USD - Rent & Utilities 0000,293.00,Bank Transfer,Transfer,
+2026-03-25,Wise Charges for: TRANSFER-2039320064,Wise USD - Rent & Utilities 0000,-3.61,Owner's Draw,Personal, fee on owner-draw transfer (kept inside draw)
+2026-03-25,Moved 293.00 USD to Rent & Utilities (Wise internal),USD account 1430,-293.00,Bank Transfer,Transfer,Wise BALANCE-5001652243
+2026-03-30,CLAUDE.AI SUBSCRIPTION,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-03-30,ANTHROPIC,J. DECKER 2110,-25.00,Software & Web Services,Expense,
+2026-04-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.28,Software & Web Services,Expense,
+2026-04-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-04-01,Interest (Received),USD account 1430,34.39,Interest Income,Income,Wise BALANCE_INTEREST-72ab914e-7b03-4c2a-f375-f181d6ebdb55
+2026-04-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-04-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-04-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-04-08,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,150.00,Bank Transfer,Transfer,
+2026-04-08,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,1750.00,Bank Transfer,Transfer,
+2026-04-08,Wise fee - TRANSFER-2065076285,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2065076285
+2026-04-08,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-1750.00,Bank Transfer,Transfer,Wise TRANSFER-2065076285
+2026-04-08,Wise fee - TRANSFER-2065077983,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2065077983
+2026-04-08,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-150.00,Bank Transfer,Transfer,Wise TRANSFER-2065077983
+2026-04-09,Payment Thank You-Mobile,J. DECKER 2110,1746.16,Bank Transfer,Transfer,
+2026-04-09,Payment to Chase card ending in 2110 04/09,BUS COMPLETE CHK 5200,-1746.16,Bank Transfer,Transfer,
+2026-04-10,PIERPASS LLC,J. DECKER 2110,-77.56,Reimbursable Expenses Recoverable,Reimbursable,Was: Reimbursable Expenses Recoverable 
+2026-04-10,PORTCHECK LLC,J. DECKER 2110,-20.00,Reimbursable Expenses Recoverable,Reimbursable,Was: Reimbursable Expenses Recoverable 
+2026-04-10,ANTHROPIC,J. DECKER 2110,-45.00,Software & Web Services,Expense,
+2026-04-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-04-16,HTGROWTH,J. DECKER 2110,-1000.00,Reimbursable Expenses Recoverable,Pass-through,"Reclass: HTGROWTH campaign billed to WA (INV-000011, paid 29 Apr) - was Other Professional Services"
+2026-04-17,Moved 293.00 USD to USD,Wise USD - Rent & Utilities 0000,-293.00,Bank Transfer,Transfer,
+2026-04-17,Wise Charges for: TRANSFER-2082138826 Reference: Oct 2025 re,Wise USD - Rent & Utilities 0000,-3.63,Owner's Draw,Personal, fee on owner-draw transfer (kept inside draw)
+2026-04-17,Moved 293.00 USD from USD,Wise USD - Rent & Utilities 0000,293.00,Bank Transfer,Transfer,
+2026-04-17,Sent money to Joshua F Decker (fee: 3.63 USD) Reference: Oct,Wise USD - Rent & Utilities 0000,-289.37,Owner's Draw,Personal,Was: Utilities Expense; Reclass: was Rent Expense -> Owner's Draw (Oct 2026 decision)
+2026-04-17,Moved 293.00 USD to Rent & Utilities (Wise internal),USD account 1430,-293.00,Bank Transfer,Transfer,Wise BALANCE-5132640512
+2026-04-17,Moved 293.00 USD from Rent & Utilities (Wise internal),USD account 1430,293.00,Bank Transfer,Transfer,Wise BALANCE-5133701625
+2026-04-21,Wise fee - TRANSFER-2089390181,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2089390181
+2026-04-21,"Maersk Customs Services USA Inc - customs duties (shipment 9), paid for WA",USD account 1430,-8204.37,Reimbursable Expenses Recoverable,Reimbursable,Wise TRANSFER-2089390181
+2026-04-21,Wise fee - TRANSFER-2089414768,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2089414768
+2026-04-21,W.A. Rubbermate - INV-000010 Mar 2026 commission,USD account 1430,3151.50,Service Revenue,Income,Wise TRANSFER-2089414768
+2026-04-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-04-25,Wise fee - TRANSFER-2096510337,USD account 1430,-3.62,Owner's Draw,Personal,Wise FEE-TRANSFER-2096510337
+2026-04-25,Joshua F Decker (Sent) - owner draw,USD account 1430,-289.38,Owner's Draw,Personal,Wise TRANSFER-2096510337
+2026-04-26,MAERSK A/S,J. DECKER 2110,-462.15,Reimbursable Expenses Recoverable,Reimbursable,Was: Reimbursable Expenses Recoverable 
+2026-04-29,Wise fee - TRANSFER-2103634924,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2103634924
+2026-04-29,W.A. Rubbermate - INV-000011 HTGROWTH campaign reimbursement,USD account 1430,1000.00,Reimbursable Expenses Recoverable,Reimbursable,Wise TRANSFER-2103634924
+2026-04-30,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,2800.00,Bank Transfer,Transfer,
+2026-04-30,CLAUDE.AI SUBSCRIPTION,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-04-30,Wise fee - TRANSFER-2106086242,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2106086242
+2026-04-30,W.A. Rubbermate - INV-000014 Feb 2025 commission (back-invoice),USD account 1430,1622.00,Service Revenue,Income,Wise TRANSFER-2106086242
+2026-04-30,Wise fee - TRANSFER-2106324226,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2106324226
+2026-04-30,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-2800.00,Bank Transfer,Transfer,Wise TRANSFER-2106324226
+2026-05-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.25,Software & Web Services,Expense,
+2026-05-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-05-01,Payment Thank You-Mobile,J. DECKER 2110,2889.71,Bank Transfer,Transfer,
+2026-05-01,Payment to Chase card ending in 2110 05/01,BUS COMPLETE CHK 5200,-2889.71,Bank Transfer,Transfer,
+2026-05-01,Interest (Received),USD account 1430,30.42,Interest Income,Income,Wise BALANCE_INTEREST-75293701-b868-43da-52db-f6925710cb83
+2026-05-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-05-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-05-04,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-05-05,Wise fee - TRANSFER-2115921041,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2115921041
+2026-05-05,W.A. Rubbermate - INV-000015 9th shipment duties/freight reimbursement,USD account 1430,8764.08,Reimbursable Expenses Recoverable,Reimbursable,Wise TRANSFER-2115921041
+2026-05-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-05-19,OPENAI,J. DECKER 2110,-10.00,Software & Web Services,Expense,
+2026-05-20,"FIRSTBASE.IO, INC.",J. DECKER 2110,-68.48,Other Professional Services,Expense,
+2026-05-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-05-25,Wise fee - TRANSFER-2152290937,USD account 1430,-3.60,Owner's Draw,Personal,Wise FEE-TRANSFER-2152290937
+2026-05-25,Joshua F Decker (Sent) - owner draw,USD account 1430,-289.40,Owner's Draw,Personal,Wise TRANSFER-2152290937
+2026-05-26,ANTHROPIC,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-05-26,Joshua F Decker (Sent) - owner draw,USD account 1430,-500.00,Owner's Draw,Personal,Wise TRANSFER-2153228066
+2026-05-29,MONTHLY SERVICE FEE,BUS COMPLETE CHK 5200,-15.00,Bank Charges,Expense,
+2026-05-30,CLAUDE.AI SUBSCRIPTION,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-05-31,Wise fee - TRANSFER-2163312820,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2163312820
+2026-05-31,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-2400.00,Bank Transfer,Transfer,Wise TRANSFER-2163312820
+2026-06-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-06-01,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,2400.00,Bank Transfer,Transfer,
+2026-06-01,Payment to Chase card ending in 2110 06/01,BUS COMPLETE CHK 5200,-1631.53,Bank Transfer,Transfer,
+2026-06-01,Payment Thank You-Mobile,J. DECKER 2110,1631.53,Bank Transfer,Transfer,
+2026-06-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.06,Software & Web Services,Expense,
+2026-06-01,Interest (Received),USD account 1430,39.59,Interest Income,Income,Wise BALANCE_INTEREST-779336eb-b935-464d-5abd-6bd0acaa1124
+2026-06-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-06-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-06-02,Wise fee - TRANSFER-2168224363,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2168224363
+2026-06-02,W.A. Rubbermate - INV-000016 Apr 2026 commission,USD account 1430,2538.00,Service Revenue,Income,Wise TRANSFER-2168224363
+2026-06-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-06-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-06-18,Wise fee - TRANSFER-2198946319,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2198946319
+2026-06-18,W.A. Rubbermate - INV-000017 May 2026 commission,USD account 1430,3201.00,Service Revenue,Income,Wise TRANSFER-2198946319
+2026-06-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-06-25,Wise fee - TRANSFER-2211531511,USD account 1430,-3.55,Owner's Draw,Personal,Wise FEE-TRANSFER-2211531511
+2026-06-25,Joshua F Decker (Sent) - owner draw,USD account 1430,-289.45,Owner's Draw,Personal,Wise TRANSFER-2211531511
+2026-06-29,CBP TREAS 310 - tariff refund (pass-through to WA),USD account 1430,18375.57,Payable to WA Rubbermate,Pass-through,Wise TRANSFER-2217458056
+2026-06-30,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,898.87,Bank Transfer,Transfer,
+2026-06-30,ANTHROPIC* CLAUDE SUB,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-06-30,Wise fee - TRANSFER-2219817639,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2219817639
+2026-06-30,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-898.87,Bank Transfer,Transfer,Wise TRANSFER-2219817639
+2026-07-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.17,Software & Web Services,Expense,
+2026-07-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-07-01,Interest (Received),USD account 1430,44.07,Interest Income,Income,Wise BALANCE_INTEREST-7a121e85-5802-4cf3-07d4-d0124615bf31
+2026-07-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-07-02,Payment Thank You-Mobile,J. DECKER 2110,1512.86,Bank Transfer,Transfer,
+2026-07-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-07-02,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,200.00,Bank Transfer,Transfer,
+2026-07-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-07-03,Payment to Chase card ending in 2110 07/03,BUS COMPLETE CHK 5200,-1512.86,Bank Transfer,Transfer,
+2026-07-03,Wise fee - TRANSFER-2227372290,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2227372290
+2026-07-03,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-200.00,Bank Transfer,Transfer,Wise TRANSFER-2227372290
+2026-07-08,Wise fee - TRANSFER-2236910892,USD account 1430,-36.13,Payable to WA Rubbermate,Pass-through,Wise FEE-TRANSFER-2236910892
+2026-07-08,W.A. Rubbermate - tariff refund passed through,USD account 1430,-18339.44,Payable to WA Rubbermate,Pass-through,Wise TRANSFER-2236910892
+2026-07-08,Moved 950.00 USD from Taxes (Wise internal),USD account 1430,950.00,Bank Transfer,Transfer,Wise BALANCE-5630475476
+2026-07-08,IRS (Sent) - federal income tax (owner),USD account 1430,-1411.00,Owner's Draw,Personal,Wise DIRECT_DEBIT-36302000
+2026-07-08,Moved 950.00 USD from Taxes jar to USD (Wise internal),Wise USD - Taxes jar,-950.00,Bank Transfer,Transfer,Jar side of Wise BALANCE-5630475476
+2026-07-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-07-16,Wise fee - TRANSFER-2253665703,USD account 1430,-6.11,Bank Charges,Expense,Wise FEE-TRANSFER-2253665703
+2026-07-16,W.A. Rubbermate - INV-000018 Jun 2026 commission,USD account 1430,2786.00,Service Revenue,Income,Wise TRANSFER-2253665703
+2026-07-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-07-25,Wise fee - TRANSFER-2270139501,USD account 1430,-3.54,Owner's Draw,Personal,Wise FEE-TRANSFER-2270139501
+2026-07-25,Joshua F Decker (Sent) - owner draw,USD account 1430,-289.46,Owner's Draw,Personal,Wise TRANSFER-2270139501
+2026-07-30,ANTHROPIC* CLAUDE SUB,J. DECKER 2110,-80.54,Software & Web Services,Expense,
+2026-07-30,ANTHROPIC* CLAUDE SUB,J. DECKER 2110,-20.00,Software & Web Services,Expense,
+2026-07-30,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,1418.87,Bank Transfer,Transfer,
+2026-07-30,Wise fee - TRANSFER-2278771387,USD account 1430,-3.29,Owner's Draw,Personal,Wise FEE-TRANSFER-2278771387
+2026-07-30,Joshua F Decker (Sent) - owner draw,USD account 1430,-246.71,Owner's Draw,Personal,Wise TRANSFER-2278771387
+2026-07-30,Wise fee - TRANSFER-2278782716,USD account 1430,-1.13,Owner's Draw,Personal,Wise FEE-TRANSFER-2278782716
+2026-07-30,Joshua F Decker (Sent) - owner draw,USD account 1430,-248.87,Owner's Draw,Personal,Wise TRANSFER-2278782716
+2026-07-30,Wise fee - TRANSFER-2278784601,USD account 1430,-1.13,Bank Charges,Expense,Wise FEE-TRANSFER-2278784601
+2026-07-30,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-1418.87,Bank Transfer,Transfer,Wise TRANSFER-2278784601
+2026-07-31,Payment Thank You-Mobile,J. DECKER 2110,1492.97,Bank Transfer,Transfer,
+2026-08-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,
+2026-08-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-12.84,Software & Web Services,Expense,
+2026-08-01,Interest (Received),USD account 1430,60.04,Interest Income,Income,Wise BALANCE_INTEREST-7c7c36f1-b7e1-41ad-9929-c051393a72f6
+2026-08-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,
+2026-08-03,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-08-03,Payment to Chase card ending in 2110 08/03,BUS COMPLETE CHK 5200,-1492.97,Bank Transfer,Transfer,
+2026-08-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-08-12,"FIRSTBASE.IO, INC.",J. DECKER 2110,-299.00,Other Professional Services,Expense,
+2026-08-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Was: Postage & Delivery
+2026-08-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,
+2026-08-25,Wise fee - TRANSFER-2330304621,USD account 1430,-3.58,Owner's Draw,Personal,Wise FEE-TRANSFER-2330304621
+2026-08-25,Joshua F Decker (Sent) - owner draw,USD account 1430,-289.42,Owner's Draw,Personal,Wise TRANSFER-2330304621
+2026-08-29,Maersk Customs Services USA Inc (Sent),USD account 1430,-550.00,Reimbursable Expenses Recoverable,Pass-through,Customs bond renewal 2026; billed WA as INV-000020. Firstbase had coded it Automobile Expense.
+2026-08-29,Wise Charges for: TRANSFER-2338350075,USD account 1430,-1.13,Bank Charges,Expense,Fee on Maersk bond payment
+2026-08-29,Two Commas LLC (Sent),USD account 1430,-2498.87,Bank Transfer,Transfer,"Wise -> Chase *5200. Firstbase had coded $2,500 as Meals."
+2026-08-29,Wise Charges for: TRANSFER-2338335980,USD account 1430,-1.13,Bank Charges,Expense,Fee on Wise -> Chase transfer
+2026-08-30,Payment to Chase card ending in 2110 08/30,BUS COMPLETE CHK 5200,-1892.18,Bank Transfer,Transfer,Posted by Chase 31 Aug
+2026-08-30,Payment Thank You-Mobile,J. DECKER 2110,1892.18,Bank Transfer,Transfer,
+2026-08-31,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,2498.87,Bank Transfer,Transfer,
+2026-08-31,MONTHLY SERVICE FEE,BUS COMPLETE CHK 5200,-15.00,Bank Charges,Expense,"Fee applied - balance fell under $2,000 (lowest daily $1,912.96)"
+2026-08-31,ANTHROPIC* CLAUDE SUB,J. DECKER 2110,-100.00,Software & Web Services,Expense,
+2026-08-31,"W.A. Rubbermate - INV-000019 July 2026 commission (5,625 boxes)",USD account 1430,2812.50,Service Revenue,Income,Gross; Wise fee on next line. Firstbase booked this one gross.
+2026-08-31,Wise Charges for: TRANSFER-2341692850,USD account 1430,-6.11,Bank Charges,Expense,Wise fee on WA receipt
+2026-09-01,Interest (Received),USD account 1430,46.93,Interest Income,Income,
+2026-09-01,GOOGLE *Workspace_twoc,J. DECKER 2110,-16.80,Software & Web Services,Expense,"Workspace Business Standard, 1 seat, Aug usage (unchanged). Card charge was $28.80 = 16.80 + 12.00 domain"
+2026-09-01,GOOGLE *SVCStwocommas.,J. DECKER 2110,-13.61,Software & Web Services,Expense,
+2026-09-01,GOOGLE *Workspace_twoc - domain renewal (twocommas.info),J. DECKER 2110,-12.00,Software & Web Services,Expense,"Annual domain registration renewal charged 15 Aug, billed 1 Sep. Next ~Aug 2027"
+2026-09-02,"FIRSTBASE.IO, INC.",J. DECKER 2110,-149.00,Other Professional Services,Expense,Refunded 3 Sep (next line)
+2026-09-02,ORIG CO NAME:BETTERMENT SEC ORIG ID:2743132639 DESC DATE:260,BUS COMPLETE CHK 5200,-100.00,Owner's Draw,Personal,
+2026-09-03,"FIRSTBASE.IO, INC. (refund)",J. DECKER 2110,149.00,Other Professional Services,Expense,Credit - nets the 2 Sep charge to $0
+2026-09-03,SELLERBOARD PRO,J. DECKER 2110,-29.00,Software & Web Services,Expense,
+2026-09-03,"Joshua F Decker (Sent) - USD to THB, KBank",USD account 1430,-500.00,Owner's Draw,Personal,"Incl. Wise fee $4.78; rate 32.9455; THB 16,315.27 received"
+2026-09-15,"FIRSTBASE.IO, INC.",J. DECKER 2110,-35.00,Postage & Delivery,Expense,Mail forwarding
+2026-09-15,W.A. Rubbermate - INV-000020 customs bond renewal,USD account 1430,550.00,Reimbursable Expenses Recoverable,Pass-through,Gross $550 (received $543.89 after Wise fee). NOT revenue.
+2026-09-15,Wise Charges for: INV-000020 receipt,USD account 1430,-6.11,Bank Charges,Expense,Wise fee on WA receipt
+2026-09-23,HTGROWTH,J. DECKER 2110,-1250.00,Other Professional Services,Expense,Monthly retainer - no extras
+2026-09-25,Joshua Decker (Sent),USD account 1430,-500.00,Owner's Draw,Personal,Incl. Wise fee $1.13
+2026-09-29,REAL TIME TRANSFER RECD FROM ABA/CONTR BNK-021000021 FROM: T,BUS COMPLETE CHK 5200,1198.87,Bank Transfer,Transfer,
+2026-09-30,Joshua F Decker (Sent),USD account 1430,-200.00,Owner's Draw,Personal,
+2026-09-30,Two Commas LLC (Sent),USD account 1430,-1198.87,Bank Transfer,Transfer,Wise -> Chase *5200
+2026-09-30,Wise Charges for: transfer to Chase,USD account 1430,-1.13,Bank Charges,Expense,
+2026-10-01,Interest (Received),USD account 1430,45.13,Interest Income,Income,Wise BALANCE_INTEREST-817956ec-2940-4ea3-2a38-15268ba52481
+2026-10-02,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-298.87,Bank Transfer,Transfer,Wise TRANSFER-2406973811. Wise debit $300.00 = $298.87 + fee. Chase credit not yet booked (no Oct statement)
+2026-10-02,Wise Charges for: TRANSFER-2406973811,USD account 1430,-1.13,Bank Charges,Expense,Fee on Wise -> Chase transfer
+2026-10-19,W.A. Rubbermate - Wise INV-013 Aug + INV-014 Sep commissions (one wire),USD account 1430,5706.00,Service Revenue,Income,"Wise TRANSFER-2441134368. Gross; Wise fee on next line. Net $5,699.89. $3,016 Aug (6,032 boxes) + $2,690 Sep (5,380 boxes)"
+2026-10-19,Wise fee - TRANSFER-2441134368,USD account 1430,-6.11,Bank Charges,Expense,Wise fee on WA receipt
+2026-10-21,Joshua Decker (Sent) - owners draw,USD account 1430,-600.00,Owner's Draw,Personal,Wise TRANSFER-2445337879. Incl. Wise fee $1.13
+2026-10-23,US CBP - shipment 10 customs duty (ACH debit),USD account 1430,-5510.14,Reimbursable Expenses Recoverable,Pass-through,"Wise DIRECT_DEBIT-40502598. Matches CBP PMS $5,510.14. Billed to WA on Wise INV-010 ($5,645.14 with entry fee). NOT an expense"
+2026-10-24,Maersk Customs Services USA Inc - shipment 10 entry fee,USD account 1430,-135.00,Reimbursable Expenses Recoverable,Pass-through,"Wise TRANSFER-2451302590, ref 7228056. Part of Wise INV-010"
+2026-10-24,Wise Charges for: TRANSFER-2451302590,USD account 1430,-1.13,Bank Charges,Expense,Fee on Maersk payment
+2026-10-29,Joshua F Decker (Sent) - owners draw,USD account 1430,-300.00,Owner's Draw,Personal,Wise TRANSFER-2459989965. No Wise fee
+2026-10-29,Two Commas LLC (Sent) - Wise to Chase 5200,USD account 1430,-1198.87,Bank Transfer,Transfer,"Wise TRANSFER-2460784094. Wise debit $1,200.00 = $1,198.87 + fee. Chase credit not yet booked"
+2026-10-29,Wise Charges for: TRANSFER-2460784094,USD account 1430,-1.13,Bank Charges,Expense,Fee on Wise -> Chase transfer

@@ -1,0 +1,35 @@
+Vendor / Pattern,Correct Category,Type,Notes
+WA Rubbermate (commission invoice),Service Revenue,Revenue,Only single-line $0.50/box commission invoices
+WA Rubbermate (all other invoices),Reimbursable Expenses Recoverable,Balance Sheet,"Duties, customs, freight, creative, A+, campaigns"
+Maersk / Maersk Customs Services,Reimbursable Expenses Recoverable,Balance Sheet,Always WA pass-through
+Paycargo,Reimbursable Expenses Recoverable,Balance Sheet,Ocean freight — WA pass-through
+Pierpass LLC,Reimbursable Expenses Recoverable,Balance Sheet,Port fee — WA pass-through
+Portcheck LLC,Reimbursable Expenses Recoverable,Balance Sheet,Port inspection — WA pass-through
+HTGROWTH,Other Professional Services,Expense,"$1,250/mo retainer. Extra charges may be WA reimbursable — confirm"
+Firstbase.io ($149),Other Professional Services,Expense,Accounting/admin - CANCELLED. Sep 2026 charge refunded (correct)
+Firstbase.io ($35),Postage & Delivery,Expense,Monthly mailbox / registered-agent address - KEEP (Firstbase remains the registered agent)
+Firstbase.io ($299),Other Professional Services,Expense,Annual registered agent or similar
+Sellerboard Pro,Software & Web Services,Expense,Amazon analytics SaaS
+Google Workspace,Software & Web Services,Expense,"Business Standard, 1 seat, $16.80/mo. Annual domain renewal $12 (twocommas.info) each Aug"
+MyRealProfit,Software & Web Services,Expense,Amazon profit tracker
+Anthropic / Claude,Software & Web Services,Expense,AI tools
+OpenAI,Software & Web Services,Expense,AI tools
+Betterment Securities,Owner's Draw,Personal,Personal investment — NEVER software
+"Joshua F Decker / Joshua Decker (any amount, incl. $293 monthly)",Owner's Draw,Personal,ALL transfers to Joshua are draws. Rent/home-office deduction withdrawn (Thai permanent-establishment risk). Oct 2026 decision.
+(merged into row above),Owner's Draw,Personal,Superseded
+IRS / US Treasury (federal income tax),Owner's Draw,Personal,"Disregarded single-member LLC: income tax is the owner's, not the business's. Wyoming/state fees still = Taxes & Licenses."
+Wise → Chase transfers,Bank Transfer,No P&L,Internal transfer between own accounts
+Wise jar moves,Bank Transfer,No P&L,Internal jar allocation
+Interest (Received),Interest Income,Income,Wise/Chase interest
+"Wise fee lines (""Wise Charges for..."")",Bank Charges,Expense,Fees on WA receipts ($6.11) and on Wise->Chase transfers ($1.13). Fees on draws stay inside the draw.
+Chase Monthly Service Fee ($15),Bank Charges,Expense,"Waived if daily balance >= $2,000 - keep Chase *5200 above that."
+Chase card payment / Payment Thank You,Bank Transfer,No P&L,"Both legs (checking out, card in)."
+Google Voice Starter (g.co/HelpPay SVCS),Software & Web Services,Expense,VoIP line ~$13/mo incl. telecom taxes ($9.97 licence + fees)
+WA Rubbermate receipt - reference INV-0000xx PO-.. + customs/bond text,Reimbursable Expenses Recoverable,Balance Sheet,Never revenue unless single-line $0.50/box commission
+"Maersk Customs Services (bond, entry fee), CBP ACH, PortCheck/PierPass, detention",Reimbursable Expenses Recoverable,Balance Sheet,Billed to WA on Wise invoice
+Cloudflare (twocommas.us domain / website hosting),Software & Web Services,Expense,"Business website domain, bought Oct 2026. Annual renewal. If paid on a personal card, record as an owner contribution, not a business expense"
+Wise fee line (Wise Charges for: TRANSFER-xxxx),Follows the parent transfer,Rule,"Fee on a WA receipt, Wise->Chase transfer or Maersk payment = Bank Charges; fee on an owner draw = Owner's Draw (inside the draw); fee on the WA tariff-refund wire = Payable to WA"
+Firstbase $35 (mailbox / registered agent),Postage & Delivery,Expense,All months Jan-Sep (was Other Professional Services in the Firstbase export)
+"Wise internal ""Moved ... to/from Rent & Utilities / Taxes""",Bank Transfer,Transfer,Net zero; jar side kept on its own source line
+CBP TREAS 310 (tariff refund) / payment to WA,Payable to WA Rubbermate,Pass-through,"Refund received 29 Jun $18,375.57; sent to WA 8 Jul"
+"US CBP direct debit (""Paid to US CBP"", DIRECT_DEBIT)",Reimbursable Expenses Recoverable,Pass-through,Monthly CBP PMS debit for shipment duty; match to CBP PMS report. Billed to WA on Wise invoice.

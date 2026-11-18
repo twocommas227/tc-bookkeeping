@@ -1,0 +1,19 @@
+Invoice No.,Date,Commission Month,Type,Boxes,Rate,Gross Amount,Wise Fee,Net Received,Date Paid,Status,Notes
+INV-000005,2025-12-15,Dec 2025,Commission,7573,0.5,3786.50,6.11,3780.39,2026-01-30,Paid,
+INV-000006,2026-01-15,Jan 2026,Commission,7067,0.5,3533.50,6.11,3527.39,2026-03-05,Paid,76-box discrepancy unresolved
+INV-000008,2026-02-01,N/A,Reimbursable,0,0,900.00,6.11,893.89,2026-03-05,Paid,8th shipment demurrage
+INV-000009,2026-02-15,Feb 2026,Commission,6098,0.5,3049.00,6.11,3042.89,2026-03-18,Paid,
+INV-000010,2026-03-15,Mar 2026,Commission,6303,0.5,3151.50,6.11,3145.39,2026-04-21,Paid,
+INV-000011,2026-03-01,N/A,Reimbursable,0,0,1000.00,6.11,993.89,2026-04-29,Paid,HTGROWTH campaign reimb
+INV-000014,2026-04-27,Feb 2025,Commission,3244,0.5,1622.00,6.11,1615.89,2026-04-30,Paid,Back-invoice for missed month
+INV-000015,2026-04-29,N/A,Reimbursable,0,0,8764.08,6.11,8757.97,2026-05-05,Paid,9th shipment duties/freight
+INV-000016,2026-05-04,Apr 2026,Commission,5076,0.5,2538.00,6.11,2531.89,2026-05-04,Paid,
+INV-000017,2026-06-04,May 2026,Commission,6402,0.5,3201.00,6.11,3194.89,2026-06-04,Paid,
+INV-000018,2026-07-08,Jun 2026,Commission,5572,0.5,2786.00,6.11,2779.89,2026-07-08,Paid,
+INV-000019,2026-08-10,Jul 2026,Commission,5625,0.5,2812.50,6.11,2806.39,2026-08-31,Paid,"Corrected: 5,625 boxes (was 5,637); Wise received 31 Aug"
+INV-000020,2026-08-31,N/A,Reimbursable,0,0,550.00,6.11,543.89,2026-09-15,Paid,Customs bond renewal 2026 (Firstbase-format invoice). Fronted via Maersk 29 Aug
+Wise INV-010,2026-10-02,N/A,Reimbursable,0,0,5645.14,0.00,0.00,,Pending,"Shipment 10 customs duty $5,510.14 + entry fee $135.00; due 9 Oct. CBP debits duty ~22 Oct | CBP debited $5,510.14 on 23 Oct; Maersk entry fee $135 paid 24 Oct. Still unpaid by WA as of 31 Oct export."
+Wise INV-011,2026-10-08,Sep 2026,Voided,5380,0.5,2690.00,0.00,0.00,,Voided,Voided 16 Oct 2026 - reissued as Wise INV-014 without the Nov due date (WA accounting pays on the due date)
+Wise INV-012,2026-10-09,Aug 2026,Voided,6032,0.5,3016.00,0.00,0.00,,Voided,Voided 16 Oct 2026 - reissued as Wise INV-013 without the Nov due date (WA accounting pays on the due date)
+Wise INV-013,2026-10-16,Aug 2026,Commission,6032,0.5,3016.00,6.11,3009.89,2026-10-19,Paid,"6,032 boxes x $0.50. Due 17 Oct. Replaces voided Wise INV-012 PAID 19 Oct: INV-013 + INV-014 in ONE wire $5,706.00, Wise fee $6.11 (shown on INV-013), net $5,699.89, Wise #2441134368. Confirmed vs Wise Oct CSV (19 Oct)."
+Wise INV-014,2026-10-16,Sep 2026,Commission,5380,0.5,2690.00,0.00,2690.00,2026-10-19,Paid,"5,380 boxes x $0.50. Due 17 Oct. Replaces voided Wise INV-011. NOTE: not the same as Firstbase INV-000014 (Feb 2025 commission, paid) PAID 19 Oct: INV-013 + INV-014 in ONE wire $5,706.00, Wise fee $6.11 (shown on INV-013), net $5,699.89, Wise #2441134368. Confirmed vs Wise Oct CSV (19 Oct)."

@@ -9,9 +9,9 @@ data/
 backups/*.db
 backups/*.csv
 
-# Private financial data: keep out of Git
-tests/fixtures/
+# Private financial data: keep out of Git (the test fixtures in tests/fixtures/ are committed on purpose, private repo)
 *.db
 .env
 backups/
 *.pdf
+!tests/fixtures/**/*.pdf
