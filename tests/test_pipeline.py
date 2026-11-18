@@ -940,3 +940,12 @@ def test_wise_gap_is_refused(tmp_path):
     assert conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0] == n  # rolled back
     rep = pipeline.run_import(conn, good)  # the file that does continue from 13,344.65 still imports
     assert rep["inserted"] == 2 and wise_ledger_at(conn, "2026-11-02") == 1337015
+
+
+def test_chase_january_has_no_false_lowest_balance_warning():
+    """LOW: Jan 2026 ends on its lowest day (219,578); Chase's printed low (221,365) leaves the last day out."""
+    conn = new_db()
+    rep = pipeline.run_import(conn, RAW / "chase5200" / "2026-01.pdf")
+    assert rep["warnings"] == [] and rep["review_counts"] == {}
+    for f in sorted((RAW / "chase5200").glob("*.pdf"))[1:]:  # and no other statement warns either
+        assert pipeline.run_import(conn, f)["warnings"] == [], f.name

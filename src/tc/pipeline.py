@@ -398,7 +398,7 @@ def _chase_fee_flags(conn, acct, parsed, new_ids: set[int]) -> tuple[dict[int, l
     """RULES.md 5.4: the $15 fee is expected only when the lowest daily balance < $2,000 AND the Ink-card
     activity waiver did not apply (both are printed on the statement). A fee row charged when it is not
     expected, or a second one, gets `unexpected_bank_fee`. The ledger-computed low (end-of-day balance on days
-    with activity, fee rows excluded) is only used when the statement does not print its own."""
+    with activity before the period's last day, fee rows excluded) is only used when the statement does not print its own."""
     fee, minbal = acct["monthly_fee_cents"], acct["fee_waiver_min_balance_cents"]
     if parsed["kind"] != "chase5200_pdf" or not fee or not minbal:
         return {}, []
@@ -420,6 +420,8 @@ def _chase_fee_flags(conn, acct, parsed, new_ids: set[int]) -> tuple[dict[int, l
     computed = None
     for day in sorted(by_day):
         bal += by_day[day]
+        if day >= end:  # Chase's printed lowest daily balance leaves out the statement's last day (all 9 of 2026)
+            continue
         computed = bal if computed is None else min(computed, bal)
     stated, ink = parsed.get("lowest_daily_balance_cents"), parsed.get("ink_activity_cents")
     low = stated if stated is not None else computed
