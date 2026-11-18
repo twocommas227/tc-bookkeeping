@@ -266,3 +266,16 @@ def test_reopen_backups_are_pruned_to_the_last_30(db, tmp_path):
     assert "tc_20250101_000000_reopen.db" not in kept and any(n.endswith("_reopen.db") and "2025" not in n for n in kept)
     assert list(tmp_path.glob("tc_*_close.db"))  # month-close backups are never pruned
     assert close.prune_backups(tmp_path, "close", keep=0) != [] and not list(tmp_path.glob("tc_*_close.db"))
+
+
+def test_cannot_close_a_month_while_an_earlier_one_is_open(db, tmp_path):
+    with pytest.raises(CloseBlocked) as e:
+        close.close_month(db, "2026-03", "too early", acknowledge_tail=True)
+    assert "2026-01, 2026-02" in str(e.value) and "oldest first" in str(e.value)
+    assert not close.is_locked(db, "2026-03")
+    close.close_month(db, "2026-01", "jan", acknowledge_tail=True)
+    with pytest.raises(CloseBlocked, match="2026-02"):
+        close.close_month(db, "2026-03", "still early", acknowledge_tail=True)
+    close.close_month(db, "2026-02", "feb", acknowledge_tail=True)
+    close.close_month(db, "2026-03", "mar", acknowledge_tail=True)
+    assert close.open_months_before(db, "2026-04") == []

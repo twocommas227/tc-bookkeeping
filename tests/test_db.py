@@ -260,7 +260,8 @@ def test_cli_seed_reproduces_golden(tmp_path, monkeypatch, capsys):
                                    "JOIN accounts a ON a.id = sb.account_id GROUP BY a.id").fetchall())
         assert latest == {k: v for k, v in cutoffs.items() if v}
 
-        close.close_month(conn, "2026-09", "seed check", acknowledge_tail=True)
+        for m in range(1, 10):  # months close oldest first
+            close.close_month(conn, f"2026-{m:02d}", "seed check", acknowledge_tail=True)
         assert close.is_locked(conn, "2026-09")
     finally:
         conn.close()

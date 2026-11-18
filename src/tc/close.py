@@ -290,6 +290,15 @@ def backup(conn: sqlite3.Connection, reason: str) -> Path:
     return path
 
 
+def open_months_before(conn: sqlite3.Connection, month: str) -> list[str]:
+    """Months before ``month`` that hold transactions and are not locked, oldest first."""
+    return [r[0] for r in conn.execute(
+        """SELECT DISTINCT substr(t.date,1,7) AS m FROM transactions t
+            WHERE substr(t.date,1,7) < ?
+              AND substr(t.date,1,7) NOT IN (SELECT yyyy_mm FROM month_locks)
+            ORDER BY m""", (month,))]
+
+
 KEEP_BACKUPS = 30  # import and re-open backups are pruned to the last 30; month-close backups are kept forever
 
 
@@ -356,11 +365,14 @@ def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledg
     if is_locked(conn, month):
         raise LockedMonthError(f"Month {month} is already closed and locked", month=month)
     path = backup(conn, "close")
+    earlier = open_months_before(conn, month)
 
     items = checklist(conn, month)
     failed = [i for i in items if not i["ok"] and (i["blocking"] or (i["key"] == "tail_covered" and not acknowledge_tail))]
-    if failed:
+    if failed or earlier:
         lines = [f"step {i['step']} {i['label']}: {i['detail']}" for i in failed]
+        if earlier:
+            lines.append(f"order: an earlier month is still open ({', '.join(earlier)}); close months oldest first")
         raise CloseBlocked(f"Cannot close {month}:\n" + "\n".join(lines), items=failed)
 
     try:

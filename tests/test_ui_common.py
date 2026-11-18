@@ -6,7 +6,7 @@ import pytest
 import streamlit as st
 from streamlit.testing.v1 import AppTest
 
-from tc import close, db, fixtures
+from tc import close, db, fixtures, invoices
 
 APP = Path(__file__).resolve().parents[1] / "app"
 sys.path.insert(0, str(APP))
@@ -99,7 +99,10 @@ def test_home_default_month_is_earliest_open(golden_path):
 def test_home_locked_month_shows_badge(golden_path):
     conn = db.connect(golden_path)
     try:
-        close.close_month(conn, "2026-09", "test lock", acknowledge_tail=True)
+        invoices.backfill_payments(conn)  # Service Revenue must be backed by invoices before months can close
+        conn.commit()
+        for m in range(1, 10):  # months close oldest first
+            close.close_month(conn, f"2026-{m:02d}", "test lock", acknowledge_tail=True)
     finally:
         conn.close()
     at = _home("2026-09")
