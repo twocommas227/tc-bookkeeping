@@ -181,3 +181,10 @@ def test_bad_balance_shows_error(golden_path):
     at.button(key="bal_save").click().run()
     assert not at.exception
     assert any("Enter the balance as 1,234.56" in e.value for e in at.error)
+
+
+def test_oct_page_explains_the_28_nov_card_statement(golden_path):
+    at = _run("2026-10")
+    assert not at.exception
+    assert any("28 Nov card statement" in i.value for i in at.info)
+    assert not any("28 Nov card statement" in i.value for i in _run("2026-09").info)

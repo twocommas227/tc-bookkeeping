@@ -85,6 +85,11 @@ checklist of `docs/UI.md` section 2.
 Every blocking line must be OK before "Close month" is enabled. Step 1 and the commission and unpaid lines of step 6
 are warnings only.
 
+**October 2026 and the card *2110.** The card cycle closes on the 28th, so October can only be locked for good after
+the 28 Nov card statement is imported: its 29-31 Oct lines arrive on that statement. The 29 Sep-28 Oct statement also
+carries 29-30 Sep lines, which belong to September, so keep September open until that statement is in. Reports shows
+the same note when October is the working month.
+
 **Statement periods:** Chase *5200 statements are not calendar months. Periods run from the day after the previous
 statement closes, for example 1 Jan to 30 Jan, then 31 Jan to 27 Feb. The balance is stored at the period end, and
 the month-end tie-out uses the balance dated in that month. The card *2110 closes on the 28th, so its balance is

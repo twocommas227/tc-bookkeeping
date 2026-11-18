@@ -258,6 +258,12 @@ st.dataframe(
     hide_index=True, width="stretch", key="rep_checklist",
 )
 st.caption("[ok] done   [!!] blocks closing the month   [!] warning only")
+if month == "2026-10":
+    st.info(
+        "October can only be locked for good after the 28 Nov card statement is imported: the card *2110 cycle closes "
+        "on the 28th, so its 29-31 Oct lines arrive on that statement. The 29-30 Sep lines on the 29 Sep-28 Oct "
+        "statement belong to September, so keep September open until that statement is in."
+    )
 
 if lock:
     st.write(f'LOCKED {lock["locked_at"]} "{lock["reason"] or ""}"')
