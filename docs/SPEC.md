@@ -76,7 +76,7 @@ Importers do no categorisation; rules run afterwards.
 | `account` | text | yes | Must equal an `accounts.source_label` |
 | `description` | text | yes | Bank description, trimmed, otherwise unchanged |
 | `amount_cents` | int | yes | Signed, as the bank shows it. For a Wise debit this is the full debit **including** the fee |
-| `source_ref` | text | yes | Bank's own id (`TRANSFER-2441134368`, `DIRECT_DEBIT-40502598`, `BALANCE-...`). Where the bank gives none (Chase PDFs), a stable key: `date|amount_cents|normalised description|n` (n = occurrence index that day) |
+| `source_ref` | text | yes | Bank's own id (`TRANSFER-2441134368`, `DIRECT_DEBIT-40502598`, `BALANCE-...`). Where the bank gives none (Chase PDFs), a stable key: `<statement period end>|<line index in the statement>|<first 8 hex of sha1(date\|cents\|description)>`, e.g. `2026-01-30|0|a6898dd9`. The card *2110 uses its cycle end the same way. The seeded workbook rows use `date|amount_cents|normalised description|n` |
 | `fee_cents` | int >= 0 | yes (0 if none) | Fee contained in / attached to this line |
 | `running_balance_cents` | int | optional | Balance after the line, as printed |
 | `payee` | text | optional | Payee / payer name |

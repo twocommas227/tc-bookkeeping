@@ -949,3 +949,32 @@ def test_chase_january_has_no_false_lowest_balance_warning():
     assert rep["warnings"] == [] and rep["review_counts"] == {}
     for f in sorted((RAW / "chase5200").glob("*.pdf"))[1:]:  # and no other statement warns either
         assert pipeline.run_import(conn, f)["warnings"] == [], f.name
+
+
+def test_rerun_rules_takes_a_rerun_backup_and_is_a_noop(backup_dir, tmp_path):
+    """LOW L3: RULES.md 4.2 -- backup("rerun"), then run_rules; unchanged rules change nothing."""
+    conn = new_db()
+    pipeline.run_import(conn, RAW / "wise_2026-10.csv")
+    before = fingerprint(conn)
+    snaps = set(backup_dir.glob("tc_*_rerun.db"))
+    rep = pipeline.rerun_rules(conn, from_month="2026-10")
+    assert fingerprint(conn) == before
+    new = set(backup_dir.glob("tc_*_rerun.db")) - snaps
+    assert len(new) == 1 and rep["backup"] == str(next(iter(new)))
+    assert pipeline.rerun_rules(conn)["rows"] >= 0 and pipeline.rerun_rules(conn, month="2026-10")["backup"]
+    with pytest.raises(ValueError):
+        pipeline.rerun_rules(conn, from_month="2026-13")
+    with pytest.raises(ValueError):
+        pipeline.rerun_rules(conn, from_month="2026-10", month="2026-10")
+
+
+def test_rerun_cli(tmp_path, monkeypatch):
+    path = tmp_path / "cli.db"
+    conn = connect(path)
+    init_db(conn)
+    conn.close()
+    monkeypatch.setenv("TC_BACKUP_DIR", str(tmp_path / "bk"))
+    assert pipeline._main(["tc.pipeline", "rerun", "--db", str(path), "--from", "2026-01"]) == 0
+    assert list((tmp_path / "bk").glob("tc_*_rerun.db"))
+    assert pipeline._main(["tc.pipeline", "rerun", "--db", str(tmp_path / "missing.db")]) == 1
+    assert pipeline._main(["tc.pipeline", "rerun", "--db", str(path), "--from", "bad"]) == 1

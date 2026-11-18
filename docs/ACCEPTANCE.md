@@ -26,12 +26,12 @@ missing statements are supplied.
 All 7 skips are `tests/test_chase_card.py` (lines 95, 100, 114, 120, 136, 150, 180), reason: `2026-08-28.pdf not
 available (card *2110 cycle closing 2026-08-28; Joshua to supply -> tests/fixtures/raw/card2110/)`.
 
-Note: 19 of the 24 test names in SPEC sections 2, 3, 5 and 8 (`tests/test_golden.py`, `test_rule1_...`,
-`test_backup_roundtrip`, ...) do not exist. The same assertions exist under other names
+Note: the test names in SPEC sections 2, 3, 5 and 8 now exist: `tests/test_golden.py` (G1-G11 and
+`test_backup_roundtrip`) and `tests/test_spec_rules.py` (rules 1-5, 7, 8). Rule 6 is `tests/test_pipeline.py::test_rule6_customs_and_freight_are_reimbursable`. Earlier the same assertions existed only under other names
 (`tests/test_reports.py::test_pnl_golden_headlines`, `test_pnl_matches_golden_csv_cell_by_cell`, `test_owner_draws`,
 `test_tie_out_jan_to_sep_all_accounts`, `tests/test_db.py::test_golden_transaction_count`,
 `tests/test_invoices.py` line 100, `tests/test_close.py`). Those golden tests run on `fixtures.load_golden` (the
-answer-key loader), not on a raw import. There is no backup round-trip test of the golden numbers.
+answer-key loader), not on a raw import. The backup round trip is `test_backup_roundtrip`.
 
 ## 2. Clean-room run
 
@@ -280,28 +280,29 @@ for 2026; no code needed unless the jars are used again.
 
 - **L1. Pruning incomplete and untested** (5.5). Done for re-open backups: `close.prune_backups` keeps the last 30 import
   and the last 30 re-open backups; close backups are kept. Test: `tests/test_close.py::test_reopen_backups_are_pruned_to_the_last_30`.
-  Still open: take the close backup after the checks pass.
+  The close backup is now taken only after every check passes (`test_close_backup_is_taken_only_after_the_checks_pass`).
 - **L2. Reimbursable vs Pass-through.** Done: `Reimbursable` everywhere for that category (`rules.yaml`, schema default,
   golden loader, `upgrade.sql` for older databases). Tests: `tests/test_pipeline.py`, `tests/test_rules.py`, `tests/test_db.py`.
-- **L3. Spec drift.** Chase `source_ref` format (SPEC section 4, RULES.md 4.1); SPEC test names; `backup("rerun")`
-  and the `tc rules rerun` CLI of RULES.md 4.2. Update the docs or add the backup. Files: `docs/SPEC.md`,
-  `docs/RULES.md`, `src/tc/pipeline.py`.
+- **L3. Spec drift.** Done: SPEC documents the real Chase `source_ref`; the spec test names exist (`tests/test_golden.py`,
+  `tests/test_spec_rules.py`); `pipeline.rerun_rules` takes the `rerun` backup and `python -m tc.pipeline rerun` is the CLI
+  (RULES.md 4.2 updated; no `--rule` filter, invoice links are not deleted).
 - **L4. Lock triggers for `invoice_payments`, `invoices`, `accounts`, `categories`** (5.3). Done for `invoice_payments` and
   `invoices` in `src/tc/upgrade.sql` (`db.upgrade` applies it to an existing database). Test:
-  `tests/test_invoices.py::test_invoice_tables_follow_the_month_lock`. Still open: `accounts`, `categories`.
+  `tests/test_invoices.py::test_invoice_tables_follow_the_month_lock`. `accounts` and `categories` are frozen once any month is
+  locked (`tests/test_db.py::test_accounts_and_categories_freeze_once_a_month_is_locked`).
 - **L5. Close order.** Refuse to close month M while an earlier month with rows is open; on re-open, list later
   locked months. Done for the refusal (`close.open_months_before`; test `test_cannot_close_a_month_while_an_earlier_one_is_open`).
-  Still open: listing later locked months on re-open.
+  Re-open lists the later locked months (`close.locked_months_after`, warning on Reports).
 - **L6. Excel export.** Fill Wise Fee (fee rows of the paying receipt) and Net Received; add the Balance Sheet tab
   and a download button; strip `[rule:..]` tags from Notes. Files: `src/tc/export_xlsx.py`, `app/pages/4_Reports.py`.
   Wise Fee and Net Received are done (`invoices.invoice_fees`; test `test_invoice_register_has_wise_fee_and_net_received`,
-  INV-013 fee 6.11). Still open: Balance Sheet tab, download button, `[rule:..]` tags in Notes.
+  INV-013 fee 6.11). The Balance Sheet tab, the Excel download on Reports (F) and tag-free Notes are done too.
 - **L7. False warning on a clean file.** `chase5200/2026-01.pdf`: "ledger-computed lowest daily balance 219578 <>
   printed 221365". Fixed: the printed low leaves out the statement's last day, so the ledger-computed low does too
   (`_chase_fee_flags`). Test: `test_chase_january_has_no_false_lowest_balance_warning` (no warning on the 9 PDFs).
-- **L8. Small items.** `rules` table empty until the first `add_rule` (no effect on categorisation; fix inside H1);
-  uploads not archived; a reviewed fee child blocks merge / split without a message; README says Close is "enabled
-  only when" the checks pass, the button is always enabled and refuses on click.
+- **L8. Small items.** Done: the `rules` table is filled on first open (`rules.ensure_rules_table`); imported originals are kept in
+  `data/uploads` (or `$TC_UPLOAD_DIR`); `set_category` returns a notice when a reviewed fee row cannot be merged into a draw; the
+  README says the Close button is always clickable and refuses.
 
 ## 8. What a November close needs, in order
 

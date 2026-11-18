@@ -107,7 +107,7 @@ with col_rerun:
     rerun_clicked = st.button("Re-run rules", key="rq_rerun_btn", disabled=not month_open)
 if rerun_clicked:
     try:
-        rep = pipeline.run_rules(conn, month=scope_month)
+        rep = pipeline.rerun_rules(conn, month=scope_month)
     except ValueError as exc:
         st.error(str(exc))
     else:

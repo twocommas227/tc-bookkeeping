@@ -498,16 +498,16 @@ The reviewer cannot change `amount_cents`, `date`, `account` or `source_ref` of 
 
 ### 4.2 Re-run after a rule edit
 
-`tc rules rerun [--from YYYY-MM] [--rule ID]` calls `run_rules` on every row that satisfies ALL of:
-`review_status IN ('auto','needs_review')`, month not locked, and (if `--rule`) matched by that rule before or
-after the edit.
+`python -m tc.pipeline rerun [--from YYYY-MM] [--db PATH]` (code: `pipeline.rerun_rules`, also the Review queue's "Re-run rules"
+button) takes a `rerun` backup, then calls `run_rules` on every row that satisfies ALL of: `review_status IN
+('auto','needs_review')` and month not locked. A `--rule ID` filter is not implemented.
 
 ```
 rerun(scope):
     backup("rerun")
     for R in scope:  R.cash = cash(R)                      # stage 5 formula; undoes nothing in the database yet
     old = snapshot(category, type, review tags) per row
-    delete invoice_payments of scoped WA receipts; set those invoices back to 'Pending'
+    (invoice links are NOT deleted: matched receipts keep their invoices; use Unmatch on the Invoices page)
     stages 3, 4, 5', 6, 7, 8                               # 5' = reconcile, section 4.3
     return diff(old, new)                                  # shown to the user: N rows changed, list
 ```
@@ -854,13 +854,13 @@ fixtures is noticed. When the September statement is supplied, the 6-row exclusi
 
 ### 7.4 Other assertions in the same file
 
-- `test_wise_tie_out`: opening 1044457 + engine rows on `USD account 1430` = statement balance at each month
+- `test_wise_tie_out_to_the_statement_balances`: opening 1044457 + engine rows on `USD account 1430` = statement balance at each month
   end Jan-Aug (1100178, 1073276, 1522865, 781632, 1341058, 3635952, 1793278, 1745508); October rows sum to
   -230125 on an opening of 1564590 -> 1334465.
 - `test_rule4_wise_debit_split_sums_to_csv_amount`: for every split parent, parent + child = CSV amount.
 - `test_fee_views_empty`: `v_fee_parent_mismatch` and `v_revenue_unbacked` are empty.
 - `test_rule2_one_wire_many_invoices`: example 3 links (301600, 269000) and the -611 fee row.
-- `test_review_queue_exact`: after the two imports exactly three rows are `needs_review`:
+- `test_review_queue_exact_after_the_two_wise_imports`: after the two imports exactly three rows are `needs_review`:
   18 Jun +320100 (`invoice_matched_by_amount`), 8 Jul -1833944 (`confirm_rule`),
   31 Aug +281250 (`invoice_matched_by_amount`).
 - `test_reimport_is_noop`, `test_rerun_is_noop`, `test_reviewed_rows_survive_rerun`,

@@ -150,6 +150,9 @@ python3 -m pytest -q         # or: make test
   app is started from. The default database `data/tc.db` is anchored to the project root the same way.
 - A Wise export must continue from the ledger: if its first new row does not start from the ledger balance (an
   export in between is missing), the import is refused and nothing is saved.
+- Re-run rules after a rule edit: the Review queue button, or `python -m tc.pipeline rerun [--from YYYY-MM]`; both take a backup.
+- Imported statements are copied to `data/uploads/` (or `$TC_UPLOAD_DIR`) as `<timestamp>_<name>`.
+- Reports section F downloads the Excel workbook (adds a Balance Sheet tab); re-opening a month warns about later months that stay locked.
 - Months close oldest first: closing month M is refused while an earlier month with transactions is open.
 - Every `Reimbursable Expenses Recoverable` row has the Type `Reimbursable`; `Pass-through` is only for Payable to WA
   Rubbermate. An older database is relabelled on the next app start (open months only).

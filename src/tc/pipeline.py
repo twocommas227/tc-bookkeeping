@@ -22,6 +22,7 @@ import os
 import re
 import sqlite3
 import subprocess
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -918,6 +919,26 @@ def run_rules(conn: sqlite3.Connection, row_ids: list[int] | None = None, *, mon
     return {k: rep[k] for k in ("rows", "categorized", "review_counts")}
 
 
+def rerun_rules(conn: sqlite3.Connection, *, from_month: str | None = None, month: str | None = None) -> dict:
+    """RULES.md 4.2 re-run after a rule edit: back up ("rerun"), then run_rules.
+
+    ``from_month`` = every unreviewed row of that month and later; ``month`` = that month only; neither = every open
+    month. Reviewed rows and locked months are left alone (run_rules). Returns run_rules' report plus ``backup``.
+    """
+    for name, value in (("from_month", from_month), ("month", month)):
+        if value is not None and not re.match(r"^\d{4}-(0[1-9]|1[0-2])$", value):
+            raise ValueError(f"{name} must be YYYY-MM, got {value!r}")
+    if from_month is not None and month is not None:
+        raise ValueError("give from_month or month, not both")
+    dest = _backup(conn, "rerun")
+    if from_month is None:
+        rep = run_rules(conn, month=month)
+    else:
+        ids = [r[0] for r in conn.execute("SELECT id FROM transactions WHERE substr(date,1,7) >= ?", (from_month,))]
+        rep = run_rules(conn, ids)
+    return {**rep, "backup": str(dest)}
+
+
 def run_import(conn: sqlite3.Connection, path: str | Path, *, kind: str | None = None,
                allow_wise_gap: bool = False) -> dict:
     """RULES.md run_import(file): backup, parse, normalize, insert, stages 3-8, statement balance.
@@ -984,7 +1005,38 @@ from tc.pipeline_ui import (  # noqa: E402,F401
 from tc.rules import add_rule  # noqa: E402,F401
 
 __all__ = [
-    "parse_statement", "run_import", "run_rules", "seed_cutoff", "review_queue", "confirm", "mark_duplicate",
+    "parse_statement", "run_import", "run_rules", "rerun_rules", "seed_cutoff", "review_queue", "confirm", "mark_duplicate",
     "search_transactions", "set_category", "list_accounts", "list_categories", "list_adjustments",
     "add_adjustment", "add_rule", "set_date",
 ]
+
+
+def _main(argv: list[str]) -> int:
+    """python -m tc.pipeline rerun [--from YYYY-MM] [--db PATH]: re-run the rules on the unreviewed rows (with backup)."""
+    import argparse
+
+    from tc.db import DEFAULT_DB_PATH, connect
+
+    ap = argparse.ArgumentParser(prog="python -m tc.pipeline", description=_main.__doc__)
+    ap.add_argument("command", choices=["rerun"])
+    ap.add_argument("--from", dest="from_month", metavar="YYYY-MM", help="only this month and later")
+    ap.add_argument("--db", default=os.environ.get("TC_DB_PATH") or str(DEFAULT_DB_PATH))
+    args = ap.parse_args(argv[1:])
+    if not Path(args.db).is_file():
+        print(f"no database at {args.db}", file=sys.stderr)
+        return 1
+    conn = connect(args.db)
+    try:
+        _rules.ensure_rules_table(conn)
+        rep = rerun_rules(conn, from_month=args.from_month)
+    except ValueError as exc:
+        print(f"refusing to re-run: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        conn.close()
+    print(f"Re-ran the rules on {rep['rows']} rows; {rep['categorized']} categorised. Backup: {rep['backup']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(_main(sys.argv))
