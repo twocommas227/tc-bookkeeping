@@ -25,6 +25,7 @@ import subprocess
 from collections import Counter
 from pathlib import Path
 
+from tc import close as _close
 from tc import invoices as _invoices
 from tc import rules as _rules
 from tc.db import insert_transaction, to_cents
@@ -190,22 +191,13 @@ def _day(text: str) -> _dt.date:
 
 
 def _backup(conn: sqlite3.Connection, reason: str) -> Path:
-    """SQLite online backup to <TC_BACKUP_DIR or backups>/tc_YYYYMMDD_HHMMSS_<reason>.db (SPEC section 5)."""
-    target_dir = Path(os.environ.get("TC_BACKUP_DIR") or "backups")
-    target_dir.mkdir(parents=True, exist_ok=True)
-    stamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S")
-    dest = target_dir / f"tc_{stamp}_{reason}.db"
-    n = 1
-    while dest.exists():
-        n += 1
-        dest = target_dir / f"tc_{stamp}_{reason}_{n}.db"
-    out = sqlite3.connect(str(dest))
-    try:
-        conn.backup(out)
-    finally:
-        out.close()
-    older = sorted(target_dir.glob(f"tc_*_{reason}*.db"), key=lambda p: p.stat().st_mtime)
-    for old in older[:-KEEP_BACKUPS]:  # keep the last 30 import backups (month-close backups are other files)
+    """Online backup via close.backup (dir = $TC_BACKUP_DIR, else <repo root>/backups; never cwd-relative).
+
+    Keeps the last KEEP_BACKUPS backups of this reason; month-close and re-open backups are other files.
+    """
+    dest = _close.backup(conn, reason)
+    older = sorted(dest.parent.glob(f"tc_*_{reason}.db"), key=lambda p: p.stat().st_mtime)
+    for old in older[:-KEEP_BACKUPS]:
         try:
             old.unlink()
         except OSError:

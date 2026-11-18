@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from tc import db as dbmod
 from tc import invoices, pipeline, rules
 from tc.db import connect, init_db, insert_transaction, to_cents
 from tc.fixtures import _commission_month, _split_invoice_no
@@ -902,3 +903,24 @@ def test_database_without_the_cutoff_column_still_imports(tmp_path):
     assert pipeline.seed_cutoff(conn, WISE) is None
     rep = pipeline.run_import(conn, RAW / "wise_2026-10.csv")
     assert (rep["inserted"], rep["skipped_seeded"]) == (8, 0)
+
+
+def test_import_backup_dir_ignores_cwd(tmp_path, monkeypatch):
+    """M6: the import backup goes to close.backup's directory, never to a cwd-relative 'backups/'."""
+    from tc import close
+    target = tmp_path / "anchored"
+    work = tmp_path / "elsewhere"
+    work.mkdir()
+    monkeypatch.delenv("TC_BACKUP_DIR", raising=False)
+    monkeypatch.setattr(close, "_backup_dir", lambda: target)
+    monkeypatch.chdir(work)
+    pipeline.run_import(new_db(), RAW / "wise_2026-10.csv")
+    assert list(target.glob("tc_*_import.db"))
+    assert not (work / "backups").exists()
+    # and with no override the directory is absolute and sits at the repo root
+    monkeypatch.undo()
+    monkeypatch.delenv("TC_BACKUP_DIR", raising=False)
+    default = close._backup_dir()
+    assert default.is_absolute() and default.name == "backups"
+    assert (default.parent / "src" / "tc" / "schema.sql").exists()
+    assert dbmod.DEFAULT_DB_PATH.is_absolute()

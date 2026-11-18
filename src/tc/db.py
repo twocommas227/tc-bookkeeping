@@ -7,7 +7,8 @@ import sys
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 
-DEFAULT_DB_PATH = Path("data") / "tc.db"
+# Anchored to the repo root (src/tc/db.py -> parents[2]) so the default database never depends on the cwd.
+DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "tc.db"
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 
 _TX_COLUMNS = frozenset(
