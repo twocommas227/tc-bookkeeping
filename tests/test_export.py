@@ -52,3 +52,27 @@ def test_export_workbook_golden(golden_db, tmp_path):
 
     # Bank Tie-out exists with account blocks
     assert wb["Bank Tie-out"].max_row > 1
+
+
+def test_invoice_register_has_wise_fee_and_net_received(golden_db, tmp_path):
+    """LOW: Wise Fee / Net Received are filled from the ledger and agree with the workbook's Invoice Register."""
+    import csv
+    from pathlib import Path
+
+    invoices.backfill_payments(golden_db)
+    golden_db.commit()
+    path = tmp_path / "x.xlsx"
+    export_workbook(golden_db, path, year=2026)
+    ws = load_workbook(path)["Invoice Register"]
+    header = [c.value for c in ws[1]]
+    got = {r[0]: (r[header.index("Wise Fee")], r[header.index("Net Received")]) for r in _rows(ws)}
+    want = {}
+    for r in csv.DictReader(open(Path(__file__).parent / "fixtures" / "invoices.csv", newline="", encoding="utf-8")):
+        if r["Status"] == "Paid":
+            name = r["Invoice No."] if r["Invoice No."].startswith("Wise") else f"Firstbase {r['Invoice No.']}"
+            want[name] = (float(r["Wise Fee"]), float(r["Net Received"]))
+    assert want and want.keys() <= got.keys()
+    for name, expected in want.items():
+        assert got[name] == expected, name
+    assert got["Wise INV-013"] == (6.11, 3009.89) and got["Wise INV-014"] == (0.0, 2690.0)
+    assert got["Wise INV-010"] == (None, None)  # pending: blank, not 0

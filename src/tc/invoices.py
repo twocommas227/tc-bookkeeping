@@ -22,7 +22,7 @@ from .errors import LockedMonthError, translate_integrity_error
 __all__ = [
     "list_invoices", "unpaid", "add_invoice", "void_invoice", "unmatched_receipts", "match_payment",
     "split_receipt", "commission_check", "missing_commission_months", "parse_invoice_refs",
-    "propose_match", "backfill_payments", "flag_commission_mismatches", "unmatch_payment", "matched_receipts",
+    "propose_match", "backfill_payments", "flag_commission_mismatches", "unmatch_payment", "matched_receipts", "invoice_fees",
 ]
 
 SERVICE_REVENUE = "Service Revenue"
@@ -534,6 +534,52 @@ def matched_receipts(conn: sqlite3.Connection) -> list[dict]:
             ORDER BY t.date DESC, t.id DESC"""
     ).fetchall()
     return [dict(r, locked=bool(r["locked"])) for r in rows]
+
+
+def invoice_fees(conn: sqlite3.Connection) -> dict[int, tuple[int, int]]:
+    """Wise fee and net received per paid invoice: {invoice_id: (fee_cents, net_cents)}.
+
+    A WA receipt is booked gross with its Wise fee as a separate Bank Charges row (rule 4). The fee of a receipt is
+    its linked fee child (parent_id). Rows without that link (the seeded workbook history) fall back to an unclaimed
+    Bank Charges 'Wise fee' / 'Wise Charges' row of the same account and date: the nearest one before the receipt in
+    the ledger first, then one after it. One wire pays several invoices but is charged once: the fee goes on the
+    first invoice of the wire (lowest invoice id), the others show 0. Invoices with no fee found are left out
+    (blank, not 0).
+    """
+    out: dict[int, tuple[int, int]] = {}
+    claimed: set[int] = set()
+    receipts = conn.execute(
+        """SELECT DISTINCT t.id, t.date, t.account_id FROM invoice_payments ip
+             JOIN transactions t ON t.id = ip.transaction_id ORDER BY t.account_id, t.date, t.id"""
+    ).fetchall()
+    for r in receipts:
+        kids = conn.execute(
+            "SELECT COALESCE(SUM(-amount_cents), 0) FROM transactions WHERE parent_id = ? AND amount_cents < 0",
+            (r["id"],)).fetchone()[0]
+        if kids:
+            fee = kids
+        else:
+            cands = conn.execute(
+                """SELECT t.id, -t.amount_cents AS fee FROM transactions t JOIN categories c ON c.id = t.category_id
+                    WHERE t.account_id = ? AND t.date = ? AND t.parent_id IS NULL AND t.amount_cents < 0
+                      AND c.name = 'Bank Charges'
+                      AND (lower(t.description) LIKE '%wise fee%' OR lower(t.description) LIKE '%wise charges%')""",
+                (r["account_id"], r["date"])).fetchall()
+            # nearest fee row before the receipt first (newest first), then the ones after it (oldest first)
+            cands = sorted((x for x in cands if x["id"] not in claimed),
+                           key=lambda x: (x["id"] > r["id"], -x["id"] if x["id"] < r["id"] else x["id"]))
+            row = cands[0] if cands else None
+            if row is None:
+                continue
+            claimed.add(row["id"])
+            fee = row["fee"]
+        pays = conn.execute(
+            "SELECT invoice_id, amount_cents FROM invoice_payments WHERE transaction_id = ? ORDER BY invoice_id",
+            (r["id"],)).fetchall()
+        for k, p in enumerate(pays):
+            f = fee if k == 0 else 0
+            out[p["invoice_id"]] = (f, p["amount_cents"] - f)
+    return out
 
 
 def split_receipt(

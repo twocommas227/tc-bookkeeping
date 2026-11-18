@@ -95,7 +95,9 @@ def _transactions_sheet(ws: Worksheet, conn: sqlite3.Connection, year: int) -> N
 
 def _invoice_sheet(ws: Worksheet, conn: sqlite3.Connection) -> None:
     _header(ws, INVOICE_HEADERS)
+    fees = invoices.invoice_fees(conn)
     for inv in invoices.list_invoices(conn):
+        fee, net = fees.get(inv["id"], (None, None))
         ws.append([
             _text(inv["label"]),
             _iso_date(inv["issue_date"]),
@@ -104,8 +106,8 @@ def _invoice_sheet(ws: Worksheet, conn: sqlite3.Connection) -> None:
             inv["boxes"],
             inv["rate_cents"] / 100,
             _dollars(inv["amount_cents"]),
-            None,  # Wise fee: not stored on invoices (no fee field, invoice_payments empty in golden data)
-            None,  # Net received: depends on the Wise fee above
+            _dollars(fee) if fee is not None else None,  # Wise fee on the receipt (blank when unpaid / not found)
+            _dollars(net) if net is not None else None,  # gross less that fee
             _iso_date(inv["paid_on"]),
             _text(inv["status"]),
             _text(inv["notes"]),
