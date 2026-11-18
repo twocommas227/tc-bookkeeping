@@ -143,6 +143,14 @@ python3 -m pytest -q         # or: make test
   issued yet, so October cannot close (`docs/SPEC.md` section 5).
 - No bank feeds: every transaction comes from an uploaded file.
 - Single user, local files only. Copying `backups/` off the machine is manual.
-- The close CSV covers transactions only. The Invoice Register is in the Excel export, not in a CSV.
-- Import backups go to `backups` relative to the current directory, while close and re-open backups go to the
-  project's `backups/`. Start the app from the project directory so both land in the same place.
+- Closing a month writes two CSVs next to the backup: `..._<month>_transactions.csv` and `..._<month>_invoices.csv`
+  (the whole Invoice Register as it stood at close). The Excel export has the register as well.
+- All backups (import, close, re-open) go to `$TC_BACKUP_DIR`, else the project's `backups/`, whatever directory the
+  app is started from. The default database `data/tc.db` is anchored to the project root the same way.
+- A Wise export must continue from the ledger: if its first new row does not start from the ledger balance (an
+  export in between is missing), the import is refused and nothing is saved.
+- Unmatch (Invoices page) undoes an invoice match in an open month: the invoices go back to Pending and the receipt
+  returns to the Review queue.
+- Date change (Transactions page, "Save date") moves a row to another date, open months only. The old date is kept in
+  the note. Use it to follow the workbook's date, for example the MYREALPROFIT $47 on the card, which the statement
+  dates 31 Dec 2025 and the workbook books on 1 Jan 2026.

@@ -517,3 +517,16 @@ def test_transactions_handoff_filters_from_reports(db_path):
     assert at.selectbox(key="tx_f_account").value == "BUS COMPLETE CHK 5200"
     n = q(db_path, "SELECT COUNT(*) AS n FROM transactions WHERE substr(date,1,7) = '2026-09' AND account_id = 2")[0]["n"]
     assert len(df_with(at, "Source ref")) == n >= 1
+
+
+def test_transactions_change_date_through_set_date(db_path):
+    row = q(db_path, "SELECT id, date FROM transactions WHERE substr(date,1,7) = '2026-10' AND parent_id IS NULL "
+                     "AND category_id IS NOT NULL LIMIT 1")[0]
+    at = run(TX, "2026-10")
+    at.number_input(key="tx_edit_id").set_value(row["id"]).run()
+    assert at.button(key="tx_date_btn").disabled  # unchanged date: nothing to save
+    at.date_input(key=f"tx_edit_date_{row['id']}").set_value("2026-10-28").run()
+    at.button(key="tx_date_btn").click().run()
+    assert not at.exception, at.exception
+    after = q(db_path, "SELECT date, notes FROM transactions WHERE id = ?", row["id"])[0]
+    assert after["date"] == "2026-10-28" and f"date was {row['date']}" in after["notes"]

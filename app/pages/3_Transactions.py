@@ -189,6 +189,25 @@ else:
             ui_common.flash(f"Saved #{edit_id} as {e_cat} / {e_type}.")
             st.rerun()
 
+    d1, d2 = st.columns([1, 3])
+    with d1:
+        e_date = st.date_input(
+            "Date", value=date.fromisoformat(target["date"]), key=f"tx_edit_date_{edit_id}",
+            disabled=not unlocked or is_fee,
+        )
+    with d2:
+        st.caption("Change the date only to follow the workbook's date convention. Open months only; "
+                   "the old date is kept in the note.")
+    date_disabled = not unlocked or is_fee or e_date.isoformat() == target["date"]
+    if st.button("Save date", key="tx_date_btn", disabled=date_disabled):
+        try:
+            pipeline.set_date(conn, edit_id, e_date.isoformat())
+        except ValueError as exc:  # LockedMonthError is a ValueError: nothing was changed
+            st.error(str(exc))
+        else:
+            ui_common.flash(f"Moved #{edit_id} to {e_date.isoformat()}.")
+            st.rerun()
+
 # ------------------------------------------------------------------ adjustments
 with st.expander("Adjustments (non-bank entries)", expanded=True):
     adj_scope = None if f_month == ALL else f_month

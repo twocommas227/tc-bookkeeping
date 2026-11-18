@@ -340,6 +340,38 @@ def set_category(
     _write(conn, work)
 
 
+def set_date(conn: sqlite3.Connection, transaction_id: int, new_date: str, *, note: str | None = None) -> None:
+    """Move a row to another date (open months only), e.g. to follow the workbook date instead of the statement date.
+
+    Both the row's current month and the new month must be unlocked (LockedMonthError otherwise). A fee row cannot
+    be moved on its own: it follows its parent, and the parent's fee children move with it. The old date is kept in
+    the free-text notes ("date was YYYY-MM-DD"). Commits, or rolls back and raises ValueError.
+    """
+    row = _get_tx(conn, transaction_id)
+    if row["parent_id"] is not None:
+        raise ValueError(f"Transaction {transaction_id} is a fee row: it follows its parent")
+    if not isinstance(new_date, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", new_date):
+        raise ValueError(f"date must be YYYY-MM-DD, got {new_date!r}")
+    try:
+        _dt.date.fromisoformat(new_date)
+    except ValueError as exc:
+        raise ValueError(f"not a calendar date: {new_date!r}") from exc
+    if new_date == row["date"]:
+        return
+    _require_unlocked(conn, row["date"])
+    _require_unlocked(conn, new_date)
+
+    def work():
+        tags, free = _split_notes(row["notes"])
+        stamp = (note or "").strip() or f"date was {row['date']}"
+        free = f"{free} ({stamp})" if free else f"({stamp})"
+        conn.execute("UPDATE transactions SET date = ?, notes = ? WHERE id = ?",
+                     (new_date, _join_notes(tags, free), transaction_id))
+        conn.execute("UPDATE transactions SET date = ? WHERE parent_id = ?", (new_date, transaction_id))
+
+    _write(conn, work)
+
+
 # ------------------------------------------------------------------- lists
 def list_accounts(conn: sqlite3.Connection, *, tie_required_only: bool = False) -> list[dict]:
     """Accounts ordered by id: id, code, source_label, name, kind, statement_day."""

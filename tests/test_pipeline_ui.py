@@ -12,6 +12,7 @@ from tc.pipeline_ui import (
     review_queue,
     search_transactions,
     set_category,
+    set_date,
 )
 
 
@@ -277,3 +278,34 @@ def test_set_category_merges_and_splits_regime_b_fee(empty_db):
     p, ch = rows()
     assert (p["amount_cents"], p["fee_cents"], ch) == (-60000, 113, [])
     assert c.execute("SELECT COUNT(*) FROM v_fee_parent_mismatch").fetchone()[0] == 0
+
+
+def test_set_date_moves_row_and_fee_child_in_open_months(db):
+    c, ids = db
+    set_date(c, ids["new"], "2026-09-30")
+    rows = {r["id"]: r for r in c.execute("SELECT * FROM transactions WHERE id IN (?, ?)", (ids["new"], ids["fee"]))}
+    assert rows[ids["new"]]["date"] == rows[ids["fee"]]["date"] == "2026-09-30"
+    assert "date was 2026-10-05" in rows[ids["new"]]["notes"]
+    assert rows[ids["new"]]["notes"].startswith("[rule:none][review:no_rule,unknown_payee]")  # tags are kept
+    assert rows[ids["new"]]["amount_cents"] == -5000
+    set_date(c, ids["new"], "2026-09-30")  # same date: nothing happens
+
+
+def test_set_date_validation_and_locks(db):
+    c, ids = db
+    with pytest.raises(ValueError):
+        set_date(c, ids["fee"], "2026-10-06")  # fee row follows its parent
+    with pytest.raises(ValueError):
+        set_date(c, ids["new"], "10/06/2026")
+    with pytest.raises(ValueError):
+        set_date(c, ids["new"], "2026-02-30")
+    with pytest.raises(ValueError):
+        set_date(c, 9999, "2026-10-06")
+    lock(c, "2026-09")
+    with pytest.raises(LockedMonthError):
+        set_date(c, ids["new"], "2026-09-30")  # target month locked
+    c.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES ('2026-10', 'test')")  # trigger is already dropped
+    c.commit()
+    with pytest.raises(LockedMonthError):
+        set_date(c, ids["new"], "2026-11-01")  # source month locked
+    assert c.execute("SELECT date FROM transactions WHERE id = ?", (ids["new"],)).fetchone()[0] == "2026-10-05"

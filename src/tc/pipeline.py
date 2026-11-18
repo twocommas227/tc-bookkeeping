@@ -982,11 +982,12 @@ from tc.pipeline_ui import (  # noqa: E402,F401
     review_queue,
     search_transactions,
     set_category,
+    set_date,
 )
 from tc.rules import add_rule  # noqa: E402,F401
 
 __all__ = [
     "parse_statement", "run_import", "run_rules", "seed_cutoff", "review_queue", "confirm", "mark_duplicate",
     "search_transactions", "set_category", "list_accounts", "list_categories", "list_adjustments",
-    "add_adjustment", "add_rule",
+    "add_adjustment", "add_rule", "set_date",
 ]
