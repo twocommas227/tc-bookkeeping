@@ -31,6 +31,8 @@ def _open(path: str) -> sqlite3.Connection:
     has_tables = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' LIMIT 1").fetchone()
     if not has_tables:
         db.init_db(conn)
+    else:
+        db.upgrade(conn)  # additive, idempotent: an older database picks up new triggers
     return conn
 
 

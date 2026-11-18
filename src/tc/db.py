@@ -10,6 +10,7 @@ from pathlib import Path
 # Anchored to the repo root (src/tc/db.py -> parents[2]) so the default database never depends on the cwd.
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "tc.db"
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
+UPGRADE_PATH = Path(__file__).with_name("upgrade.sql")
 
 _TX_COLUMNS = frozenset(
     {
@@ -39,6 +40,16 @@ def init_db(conn: sqlite3.Connection) -> None:
     """Create all tables, views, triggers and seeds from schema.sql on an empty database."""
     conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
     conn.execute("PRAGMA foreign_keys = ON")  # executescript may reset session state
+    conn.commit()
+    upgrade(conn)
+
+
+def upgrade(conn: sqlite3.Connection) -> None:
+    """Apply the idempotent additive upgrades (upgrade.sql) to an existing database. Safe to run any number of times."""
+    if conn.in_transaction:
+        conn.commit()
+    conn.executescript(UPGRADE_PATH.read_text(encoding="utf-8"))
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.commit()
 
 

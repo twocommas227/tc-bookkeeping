@@ -414,3 +414,36 @@ def test_unmatch_payment_refused_in_locked_month(golden_db):
         inv.unmatch_payment(golden_db, tx)
     assert golden_db.execute("SELECT COUNT(*) FROM invoice_payments WHERE transaction_id = ?", (tx,)).fetchone()[0] == 1
     assert [m for m in inv.matched_receipts(golden_db) if m["id"] == tx][0]["locked"] is True
+
+
+def test_invoice_tables_follow_the_month_lock(golden_db):
+    """LOW: invoice_payments and a paid invoice cannot be changed once the receipt's month is locked (trigger backstop)."""
+    import sqlite3
+    tx = _golden_tx(golden_db, "2026-01-30", 378650)
+    inv_id = _invoice_id(golden_db, "Firstbase", "INV-000005")
+    inv.match_payment(golden_db, tx, [(inv_id, 378650)])
+    golden_db.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES ('2026-01', 'test close')")
+    golden_db.commit()
+    for sql in ("DELETE FROM invoice_payments WHERE transaction_id = %d" % tx,
+                "UPDATE invoice_payments SET amount_cents = amount_cents WHERE transaction_id = %d" % tx,
+                "UPDATE invoices SET notes = 'x' WHERE id = %d" % inv_id,
+                "DELETE FROM invoices WHERE id = %d" % inv_id):
+        with pytest.raises(sqlite3.IntegrityError, match="locked"):
+            golden_db.execute(sql)
+    other = _invoice_id(golden_db, "Wise", "INV-010")
+    with pytest.raises(sqlite3.IntegrityError, match="locked"):  # a new match on a locked-month receipt
+        golden_db.execute("INSERT INTO invoice_payments (transaction_id, invoice_id, amount_cents) "
+                          "SELECT ?, id, amount_cents FROM invoices WHERE id = ?", (tx, other))
+    golden_db.execute("UPDATE invoices SET notes = 'fine' WHERE id = ?", (other,))  # unrelated invoices stay editable
+
+
+def test_upgrade_adds_the_triggers_to_an_older_database(golden_db):
+    from tc import db as dbmod
+    names = ("trg_locked_invpay_ins", "trg_locked_invpay_upd", "trg_locked_invpay_del",
+             "trg_locked_inv_upd", "trg_locked_inv_del")
+    for n in names:
+        golden_db.execute(f"DROP TRIGGER {n}")
+    dbmod.upgrade(golden_db)
+    dbmod.upgrade(golden_db)  # idempotent
+    have = {r[0] for r in golden_db.execute("SELECT name FROM sqlite_master WHERE type = 'trigger'")}
+    assert set(names) <= have

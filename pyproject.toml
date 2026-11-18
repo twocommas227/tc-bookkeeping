@@ -23,7 +23,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-tc = ["schema.sql"]
+tc = ["schema.sql", "upgrade.sql", "rules.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
