@@ -137,6 +137,9 @@ def _main(argv: list[str]) -> int:
         conn = connect(path)
         try:
             init_db(conn)
+            from . import rules  # lazy: rules imports this module
+
+            rules.ensure_rules_table(conn)
         finally:
             conn.close()
         print(f"initialised {path}")

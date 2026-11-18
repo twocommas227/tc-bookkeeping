@@ -167,6 +167,8 @@ if results:
             st.info(res["balance_msg"])
         if res["balance_error"]:
             st.warning(res["balance_error"])
+        if res["archive_error"]:
+            st.warning(res["archive_error"])
         if res["locked_rows"]:
             st.dataframe(pd.DataFrame(ih.lines_table(res["locked_rows"])), hide_index=True, width="stretch")
     if st.button("Go to Review queue", key="import_goto_review_btn"):

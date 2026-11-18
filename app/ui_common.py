@@ -18,7 +18,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from tc import close, db
+from tc import close, db, rules
 
 DB_ENV = "TC_DB_PATH"
 _FLASH_KINDS = ("success", "error", "warning", "info")
@@ -33,6 +33,7 @@ def _open(path: str) -> sqlite3.Connection:
         db.init_db(conn)
     else:
         db.upgrade(conn)  # additive, idempotent: an older database picks up new triggers
+    rules.ensure_rules_table(conn)  # a fresh database has an empty rules table until the first sync
     return conn
 
 

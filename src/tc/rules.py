@@ -288,6 +288,16 @@ def sync_rules_table(conn: sqlite3.Connection, rules: list[Rule]) -> int:
     return len(rules)
 
 
+def ensure_rules_table(conn: sqlite3.Connection) -> int:
+    """Fill an EMPTY `rules` table from rules.yaml (a fresh database has none until the first sync). Returns rows written.
+
+    A table that already has rows is left alone, so rules added in the app or edited since are never overwritten.
+    """
+    if conn.execute("SELECT 1 FROM rules LIMIT 1").fetchone() is not None:
+        return 0
+    return sync_rules_table(conn, load_rules())
+
+
 # ------------------------------------------------------------------ matching
 @lru_cache(maxsize=None)
 def _rx(pattern: str) -> re.Pattern:

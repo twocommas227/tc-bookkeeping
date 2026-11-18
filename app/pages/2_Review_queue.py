@@ -256,11 +256,13 @@ def _decide(r: dict, child: bool) -> None:
                     st.error("Enter a pattern for the rule, or untick Create rule.")
                 else:
                     try:
-                        pipeline.set_category(conn, rid, cat_by_name[cat]["id"], typ, notes=note)
+                        notices = pipeline.set_category(conn, rid, cat_by_name[cat]["id"], typ, notes=note)
                     except ValueError as exc:  # includes LockedMonthError and trigger messages
                         st.error(str(exc))
                     else:
                         kind, msg = "success", f"Saved #{rid} as {cat} / {typ}."
+                        if notices:
+                            kind, msg = "warning", f"{msg} {' '.join(notices)}"
                         if make_rule:
                             try:
                                 pipeline.add_rule(

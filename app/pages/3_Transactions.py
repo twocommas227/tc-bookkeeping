@@ -182,11 +182,12 @@ else:
     save_disabled = not unlocked or is_fee or e_cat is None or e_type is None
     if st.button("Save", key="tx_save_btn", disabled=save_disabled):
         try:
-            pipeline.set_category(conn, edit_id, cat_by_name[e_cat]["id"], e_type, notes=e_note)
+            notices = pipeline.set_category(conn, edit_id, cat_by_name[e_cat]["id"], e_type, notes=e_note)
         except ValueError as exc:  # LockedMonthError (a ValueError) and trigger messages: nothing was changed
             st.error(str(exc))
         else:
-            ui_common.flash(f"Saved #{edit_id} as {e_cat} / {e_type}.")
+            ui_common.flash(f"Saved #{edit_id} as {e_cat} / {e_type}. {' '.join(notices)}".strip(),
+                            "warning" if notices else "success")
             st.rerun()
 
     d1, d2 = st.columns([1, 3])

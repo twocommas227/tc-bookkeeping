@@ -5,9 +5,11 @@ Only tc modules are called (pipeline, close, reports, db); there is no SQL here.
 
 from __future__ import annotations
 
+import os
 import re
+import shutil
 import sqlite3
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from tc import close, db, pipeline, reports
@@ -24,7 +26,30 @@ MANUAL_SOURCE = "Manual (Import page)"
 _PERIOD_IN_NAME = re.compile(r"(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})")
 
 
+UPLOAD_DIR_ENV = "TC_UPLOAD_DIR"
+
+
 # ------------------------------------------------------------------ files
+def upload_dir() -> Path:
+    """Where imported originals are kept: $TC_UPLOAD_DIR, else <repo root>/data/uploads (never cwd-relative)."""
+    env = os.environ.get(UPLOAD_DIR_ENV)
+    return Path(env) if env else Path(db.DEFAULT_DB_PATH).parent / "uploads"
+
+
+def archive_original(path: str | Path, filename: str) -> Path:
+    """Copy an imported file to the upload folder as <YYYYMMDD_HHMMSS>_<filename> (never overwrites) and return it."""
+    folder = upload_dir()
+    folder.mkdir(parents=True, exist_ok=True)
+    safe = re.sub(r"[^A-Za-z0-9._ *()-]+", "_", Path(filename).name) or "statement"
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dest, n = folder / f"{stamp}_{safe}", 1
+    while dest.exists():
+        n += 1
+        dest = folder / f"{stamp}_{n}_{safe}"
+    shutil.copy2(str(path), str(dest))
+    return dest
+
+
 def list_folder(folder: str | Path) -> list[Path]:
     """The .csv / .pdf files directly inside `folder`, sorted by name; [] when it is missing or empty."""
     p = Path(str(folder).strip()).expanduser()
@@ -185,14 +210,16 @@ def import_all(conn: sqlite3.Connection, items: list[dict], wise_saves: dict[str
 
     wise_saves = {path: 'YYYY-MM-DD'} for the Wise files whose ending balance should be saved at that date
     (close.set_statement_balance). Returns one dict per file:
-    {filename, report, error, locked_rows, locked_months, balance_msg, balance_error}.
+    {filename, report, error, locked_rows, locked_months, balance_msg, balance_error, archived, archive_error}.
+    Each imported original is copied to upload_dir() (archived = the copy's path).
     Files with an error, or with rows in a locked month, are not sent to run_import.
     """
     wise_saves = wise_saves or {}
     out = []
     for item in items:
         res = {"filename": item["filename"], "report": None, "error": None, "locked_rows": [],
-               "locked_months": [], "balance_msg": None, "balance_error": None}
+               "locked_months": [], "balance_msg": None, "balance_error": None, "archived": None,
+               "archive_error": None}
         out.append(res)
         if item["error"] or item["parsed"] is None:
             res["error"] = item["error"] or f"{item['filename']}: not recognised"
@@ -208,6 +235,10 @@ def import_all(conn: sqlite3.Connection, items: list[dict], wise_saves: dict[str
         except Exception as exc:
             res["error"] = error_text(item["filename"], ValueError(f"import failed ({exc.__class__.__name__}: {exc})"))
             continue
+        try:  # keep the original statement: the temp copy of an upload disappears
+            res["archived"] = str(archive_original(item["path"], item["filename"]))
+        except OSError as exc:
+            res["archive_error"] = f"{item['filename']}: original not archived: {exc}"
         as_of = wise_saves.get(item["path"])
         if as_of:
             p = item["parsed"]

@@ -378,3 +378,23 @@ def test_page_shows_the_seeded_count_before_and_after_import(seeded_path, tmp_pa
     assert any(s.value == "wise_2026-10.csv - 0 inserted. 8 lines already in your seeded 2026 history were skipped."
                for s in at.success)
     assert _query(seeded_path, "SELECT COUNT(*) FROM transactions") == [(235,)]
+
+
+def test_imported_originals_are_archived(conn, tmp_path, monkeypatch):
+    """LOW L8: every imported file is kept (the page's temp copy disappears); failed files are not archived."""
+    folder = tmp_path / "kept"
+    monkeypatch.setenv("TC_UPLOAD_DIR", str(folder))
+    item = ih.preview_file(conn, RAW / "wise_2026-10.csv", "my upload.csv")
+    [res] = ih.import_all(conn, [item])
+    assert res["error"] is None and res["archive_error"] is None
+    kept = list(folder.glob("*_my upload.csv"))
+    assert len(kept) == 1 and res["archived"] == str(kept[0])
+    assert kept[0].read_bytes() == (RAW / "wise_2026-10.csv").read_bytes()
+    ih.import_all(conn, [ih.preview_file(conn, RAW / "wise_2026-10.csv", "my upload.csv")])  # same name again
+    assert len(list(folder.glob("*my upload.csv"))) == 2  # never overwritten
+    bad = tmp_path / "junk.csv"
+    bad.write_text("not,a,statement\n", encoding="utf-8")
+    [res3] = ih.import_all(conn, [ih.preview_file(conn, bad)])
+    assert res3["error"] and res3["archived"] is None and len(list(folder.glob("*"))) == 2
+    monkeypatch.delenv("TC_UPLOAD_DIR")
+    assert ih.upload_dir().is_absolute() and ih.upload_dir().name == "uploads"

@@ -494,3 +494,16 @@ def test_add_rule_to_file_without_trailing_newline(tmp_path, monkeypatch, empty_
 
 def test_shipped_rules_yaml_untouched_by_tests():
     assert len(R.load_rules(Path(R.__file__).with_name("rules.yaml"))) == 28
+
+
+def test_ensure_rules_table_fills_an_empty_table_once(empty_db):
+    """LOW L8: a fresh database gets the 28 rules without a manual sync; a filled table is never overwritten."""
+    from tc import rules as r
+
+    assert empty_db.execute("SELECT COUNT(*) FROM rules").fetchone()[0] == 0
+    assert r.ensure_rules_table(empty_db) == len(r.load_rules()) == 28
+    assert empty_db.execute("SELECT COUNT(*) FROM rules").fetchone()[0] == 28
+    empty_db.execute("UPDATE rules SET notes = 'edited in the app' WHERE id = 1")
+    empty_db.commit()
+    assert r.ensure_rules_table(empty_db) == 0
+    assert empty_db.execute("SELECT notes FROM rules WHERE id = 1").fetchone()[0] == "edited in the app"

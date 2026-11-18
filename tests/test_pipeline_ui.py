@@ -309,3 +309,25 @@ def test_set_date_validation_and_locks(db):
     with pytest.raises(LockedMonthError):
         set_date(c, ids["new"], "2026-11-01")  # source month locked
     assert c.execute("SELECT date FROM transactions WHERE id = ?", (ids["new"],)).fetchone()[0] == "2026-10-05"
+
+
+def test_set_category_says_why_a_reviewed_fee_row_is_not_merged(empty_db):
+    """LOW L8: a reviewed fee child is never deleted; the user gets a notice instead of a silent no-merge."""
+    c = empty_db
+    draw = cat(c, "Owner's Draw")
+    parent = insert_transaction(
+        c, date="2026-10-21", account_id=1, description="Sent money to Joshua Decker", amount_cents=-60000,
+        source_ref="TRANSFER-1", fee_cents=113, raw_type="DEBIT/TRANSFER", category_id=draw, type="Personal",
+        review_status="auto",
+    )
+    c.commit()
+    assert set_category(c, parent, cat(c, "Bank Transfer"), "Transfer") == []  # split: nothing to report
+    child = c.execute("SELECT id FROM transactions WHERE parent_id = ?", (parent,)).fetchone()[0]
+    c.execute("UPDATE transactions SET review_status = 'reviewed' WHERE id = ?", (child,))
+    c.commit()
+    notices = set_category(c, parent, draw, "Personal")
+    assert len(notices) == 1 and f"#{child}" in notices[0] and "already reviewed" in notices[0]
+    assert c.execute("SELECT COUNT(*) FROM transactions WHERE parent_id = ?", (parent,)).fetchone()[0] == 1  # kept
+    row = c.execute("SELECT c.name FROM transactions t JOIN categories c ON c.id = t.category_id WHERE t.id = ?", (child,)).fetchone()
+    assert row[0] == "Owner's Draw"  # the fee row follows its parent
+    assert c.execute("SELECT COUNT(*) FROM v_fee_parent_mismatch").fetchone()[0] == 0

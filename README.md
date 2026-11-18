@@ -82,7 +82,8 @@ checklist of `docs/UI.md` section 2.
    month-end, tick the warning before closing. The close takes a backup and writes a CSV of that month's
    transactions to `backups/`.
 
-Every blocking line must be OK before "Close month" is enabled. Step 1 and the commission and unpaid lines of step 6
+The "Close month" button is always clickable; it refuses (and names what is missing) until every blocking line is OK.
+Step 1 and the commission and unpaid lines of step 6
 are warnings only.
 
 **October 2026 and the card *2110.** The card cycle closes on the 28th, so October can only be locked for good after

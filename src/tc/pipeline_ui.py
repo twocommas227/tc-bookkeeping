@@ -236,7 +236,9 @@ def search_transactions(
 
 # RULES.md 4.3/4.4: a regime B Wise parent (no real FEE row) keeps its fee inside the row for an owner draw
 # and is split into parent + fee row for every other category. A category flip moves it between the two.
-def _merge_or_split_fee(conn: sqlite3.Connection, row: sqlite3.Row, new_category: str, fee_cat: sqlite3.Row) -> None:
+def _merge_or_split_fee(
+    conn: sqlite3.Connection, row: sqlite3.Row, new_category: str, fee_cat: sqlite3.Row
+) -> list[str]:
     ref = f"FEE-{row['source_ref']}"
     child = conn.execute(
         "SELECT * FROM transactions WHERE account_id = ? AND source_ref = ? AND id <> ?",
@@ -247,7 +249,7 @@ def _merge_or_split_fee(conn: sqlite3.Connection, row: sqlite3.Row, new_category
         and child["running_balance_cents"] is None and child["payee"] == "Wise"
     )
     if child is not None and not synthetic:
-        return  # regime A: the fee is a real bank row; never merged or split
+        return []  # regime A: the fee is a real bank row; never merged or split
     if new_category == "Owner's Draw":
         if synthetic and child["review_status"] != "reviewed":  # merge: the fee moves back inside the draw
             conn.execute(
@@ -255,6 +257,12 @@ def _merge_or_split_fee(conn: sqlite3.Connection, row: sqlite3.Row, new_category
                 (child["amount_cents"], -child["amount_cents"], row["id"]),
             )
             conn.execute("DELETE FROM transactions WHERE id = ?", (child["id"],))
+        elif synthetic:  # a reviewed fee row is never deleted: say so instead of leaving the draw looking unmerged
+            return [
+                f"The Wise fee row #{child['id']} ({-child['amount_cents'] / 100:,.2f}) was already reviewed, so it "
+                "stays a separate row; it now follows the draw as Owner's Draw. The draw and its fee still add up "
+                "to the bank amount."
+            ]
     elif child is None and row["fee_cents"] > 0:  # split: parent + child sum to the CSV cash movement
         fee = row["fee_cents"]
         conn.execute(
@@ -266,6 +274,7 @@ def _merge_or_split_fee(conn: sqlite3.Connection, row: sqlite3.Row, new_category
             (row["date"], row["account_id"], f"Wise Charges for: {row['source_ref']}", -fee, fee_cat["id"],
              fee_cat["default_type"], ref, row["id"], row["raw_type"]),
         )
+    return []
 
 
 # ------------------------------------------------------------ set_category
@@ -276,8 +285,11 @@ def set_category(
     type: str,
     *,
     notes: str | None = None,
-) -> None:
+) -> list[str]:
     """Manual override: set category + type, mark 'reviewed', re-point fee children (fee follows parent).
+
+    Returns a list of plain-words notices to show the user (empty when there is nothing to add), e.g. a reviewed
+    Wise fee row that could not be merged back into an owner draw.
 
     notes=None keeps the row's free text; a string replaces it ('' clears it). The [rule:...] tag is kept,
     the [review:...] tag is dropped. Fee rows (parent_id set) cannot be edited directly.
@@ -309,6 +321,8 @@ def set_category(
     fee_name = _fee_category_name(cat["name"])
     fee_cat = conn.execute("SELECT id, default_type FROM categories WHERE name = ?", (fee_name,)).fetchone()
 
+    notices: list[str] = []
+
     def work():
         tags, free = _split_notes(row["notes"])
         tags.pop("review", None)
@@ -318,7 +332,7 @@ def set_category(
             "UPDATE transactions SET category_id = ?, type = ?, review_status = 'reviewed', notes = ? WHERE id = ?",
             (category_id, type, _join_notes(tags, free), transaction_id),
         )
-        _merge_or_split_fee(conn, row, cat["name"], fee_cat)
+        notices.extend(_merge_or_split_fee(conn, row, cat["name"], fee_cat))
         # fee children follow the parent (parent updated first: the child trigger reads the parent's category)
         for ch in conn.execute(
             "SELECT id, notes, review_status FROM transactions WHERE parent_id = ?", (transaction_id,)
@@ -338,6 +352,7 @@ def set_category(
             )
 
     _write(conn, work)
+    return notices
 
 
 def set_date(conn: sqlite3.Connection, transaction_id: int, new_date: str, *, note: str | None = None) -> None:
