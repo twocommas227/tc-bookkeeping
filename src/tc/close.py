@@ -311,6 +311,22 @@ def _export_csv(conn: sqlite3.Connection, month: str, backup_path: Path) -> Path
     return path
 
 
+def _export_invoices_csv(conn: sqlite3.Connection, month: str, backup_path: Path) -> Path:
+    """Invoice Register snapshot (all invoices, as at close) next to the backup and the transactions CSV."""
+    path = backup_path.with_name(f"{backup_path.stem}_{month}_invoices.csv")
+    cols = ["label", "issue_date", "due_date", "commission_month", "type", "boxes", "rate_cents", "rate",
+            "amount_cents", "amount", "status", "paid_on", "replaces_label", "notes"]
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(cols)
+        for r in reversed(invoices.list_invoices(conn)):  # oldest first, like the register
+            rate = r["rate_cents"]
+            w.writerow([r["label"], r["issue_date"], r["due_date"], r["commission_month"], r["type"], r["boxes"],
+                        rate, "" if rate is None else cents_to_str(rate), r["amount_cents"],
+                        cents_to_str(r["amount_cents"]), r["status"], r["paid_on"], r["replaces_label"], r["notes"]])
+    return path
+
+
 # ---------------------------------------------------------------- close / reopen
 def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledge_tail: bool = False) -> Path:
     """Back up, run the blocking checks, lock the month, export its transactions to CSV next to the backup.
@@ -333,6 +349,7 @@ def close_month(conn: sqlite3.Connection, month: str, reason: str, *, acknowledg
     try:
         conn.execute("INSERT INTO month_locks (yyyy_mm, reason) VALUES (?, ?)", (month, reason))
         _export_csv(conn, month, path)
+        _export_invoices_csv(conn, month, path)
         conn.commit()
     except sqlite3.IntegrityError as exc:  # trigger backstop
         conn.rollback()

@@ -61,6 +61,13 @@ def test_close_writes_csv_next_to_backup(db):
     n = db.execute("SELECT COUNT(*) FROM transactions WHERE substr(date,1,7) = '2026-01'").fetchone()[0]
     assert len(rows) == n > 0
     assert all(r["date"].startswith("2026-01") for r in rows)
+    # M3: the Invoice Register is written beside it
+    inv_path = path.with_name(f"{path.stem}_2026-01_invoices.csv")
+    with open(inv_path, newline="", encoding="utf-8") as fh:
+        inv_rows = list(csv.DictReader(fh))
+    assert len(inv_rows) == db.execute("SELECT COUNT(*) FROM invoices").fetchone()[0] == 18
+    assert {"label", "commission_month", "type", "amount", "status", "paid_on"} <= set(inv_rows[0])
+    assert any(r["label"] == "Wise INV-013" for r in inv_rows)
 
 
 def test_close_oct_blocked_names_missing_balances(db, tmp_path):
